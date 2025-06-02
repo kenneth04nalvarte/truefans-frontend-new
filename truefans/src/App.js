@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import Login from './components/Auth/Login';
-import Dashboard from './components/Dashboard/Dashboard';
+import BrandDashboard from '../frontend/src/components/Brand/BrandDashboard';
 import Navbar from './components/Navigation/Navbar';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
@@ -52,12 +52,12 @@ function App() {
               <PrivateRoute>
                 <>
                   <Navbar />
-                  <Dashboard />
+                  <BrandDashboard />
                 </>
               </PrivateRoute>
             }
           />
-          <Route path="/brand/:brandId" element={<BrandManager />} />
+          <Route path="/brands/:brandId" element={<BrandManager />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </Router>
