@@ -1,129 +1,288 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Button, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../config/firebase';
-import { getAuth } from 'firebase/auth';
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Grid,
+  Paper,
+  Typography,
+  Box,
+  Button,
+  Alert,
+  CircularProgress,
+  Card,
+  CardContent,
+  CardActions
+} from '@mui/material';
+import {
+  QrCode2 as QrCodeIcon,
+  LocalOffer as OfferIcon,
+  Warning as WarningIcon
+} from '@mui/icons-material';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { db, auth } from '../../config/firebase';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-  const [brands, setBrands] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editBrand, setEditBrand] = useState(null);
-  const [brandName, setBrandName] = useState('');
-  const [dialogLoading, setDialogLoading] = useState(false);
-  const [error, setError] = useState('');
-  const auth = getAuth();
-  const user = auth.currentUser;
   const navigate = useNavigate();
+  const [restaurant, setRestaurant] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchBrands();
-    // eslint-disable-next-line
-  }, [user]);
+    fetchRestaurantData();
+  }, []);
 
-  const fetchBrands = async () => {
-    if (!user) return;
-    setLoading(true);
-    const q = query(collection(db, 'brands'), where('ownerId', '==', user.uid));
-    const querySnapshot = await getDocs(q);
-    setBrands(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    setLoading(false);
-  };
-
-  const handleAddBrand = () => {
-    setEditBrand(null);
-    setBrandName('');
-    setError('');
-    setOpenDialog(true);
-  };
-  const handleEditBrand = (brand) => {
-    setEditBrand(brand);
-    setBrandName(brand.name);
-    setError('');
-    setOpenDialog(true);
-  };
-  const handleRemoveBrand = async (brand) => {
-    await deleteDoc(doc(db, 'brands', brand.id));
-    fetchBrands();
-  };
-  const handleSaveBrand = async () => {
-    setDialogLoading(true);
-    setError('');
+  const fetchRestaurantData = async () => {
     try {
-      if (editBrand) {
-        await updateDoc(doc(db, 'brands', editBrand.id), { name: brandName });
-      } else {
-        await addDoc(collection(db, 'brands'), {
-          name: brandName,
-          ownerId: user.uid,
-          createdAt: serverTimestamp(),
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const restaurantsQuery = query(
+        collection(db, 'restaurants'),
+        where('ownerId', '==', user.uid)
+      );
+      
+      const querySnapshot = await getDocs(restaurantsQuery);
+      if (!querySnapshot.empty) {
+        setRestaurant({
+          id: querySnapshot.docs[0].id,
+          ...querySnapshot.docs[0].data()
         });
       }
-      setOpenDialog(false);
-      fetchBrands();
-    } catch (err) {
-      setError(err.message);
+    } catch (error) {
+      console.error('Error fetching restaurant data:', error);
+      setError('Failed to load restaurant data');
     } finally {
-      setDialogLoading(false);
+      setLoading(false);
     }
   };
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setEditBrand(null);
-    setBrandName('');
-    setError('');
-  };
-  const handleManageBrand = (brand) => {
-    navigate(`/brands/${brand.id}`);
+
+  const handleManageSubscription = () => {
+    navigate('/subscription');
   };
 
-  if (loading) return <Box sx={{ mt: 8, textAlign: 'center' }}><CircularProgress /></Box>;
+  const isSubscriptionActive = () => {
+    if (!restaurant) return false;
+    return ['active', 'trial'].includes(restaurant.subscriptionStatus);
+  };
+
+  const isTrialExpiring = () => {
+    if (!restaurant || restaurant.subscriptionStatus !== 'trial') return false;
+    const trialEnd = restaurant.trialEndDate.toDate();
+    const daysUntilExpiry = Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24));
+    return daysUntilExpiry <= 3;
+  };
+
+  if (loading) {
+    return (
+      <Container>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
+
+  if (!restaurant) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h5" gutterBottom>
+            Welcome to TrueFans!
+          </Typography>
+          <Typography variant="body1" paragraph>
+            You haven't registered your restaurant yet. Let's get started!
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            onClick={() => navigate('/register-restaurant')}
+          >
+            Register Your Restaurant
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
 
   return (
-    <Box sx={{ mt: 6 }}>
-      <Typography variant="h4" sx={{ mb: 2, color: '#E63976', fontWeight: 700 }}>
-        Welcome, {user?.displayName || 'Owner'}!
-      </Typography>
-      <Typography variant="h6" sx={{ mb: 3, color: '#1A2341' }}>
-        Your Brands:
-      </Typography>
-      <Grid container spacing={2}>
-        {brands.map((brand) => (
-          <Grid item xs={12} md={6} key={brand.id}>
-            <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography sx={{ fontWeight: 600 }}>{brand.name}</Typography>
-              <Box>
-                <Button size="small" variant="contained" sx={{ mr: 1 }} onClick={() => handleManageBrand(brand)}>Manage Brand</Button>
-                <Button size="small" sx={{ mr: 1 }} onClick={() => handleEditBrand(brand)}>Edit</Button>
-                <Button size="small" color="error" onClick={() => handleRemoveBrand(brand)}>Remove</Button>
-              </Box>
-            </Paper>
-          </Grid>
-        ))}
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      {isTrialExpiring() && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          Your trial period is ending soon. Upgrade to continue using all features.
+        </Alert>
+      )}
+      
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography variant="h4" gutterBottom>
+                {restaurant.name}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {restaurant.address}
+              </Typography>
+            </Box>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/register-restaurant')}
+            >
+              Edit Restaurant
+            </Button>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Digital Passes
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Create and manage digital passes for your customers. Track usage and benefits.
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => navigate('/digital-passes')}
+              >
+                Manage Passes
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Analytics
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                View insights about your restaurant's performance and customer engagement.
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => navigate('/analytics')}
+              >
+                View Analytics
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Customer Feedback
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Read and respond to customer reviews and feedback.
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => navigate('/feedback')}
+              >
+                View Feedback
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Settings
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Manage your account settings and preferences.
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => navigate('/settings')}
+              >
+                Open Settings
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+
+        {/* Stats Cards */}
+        <Grid item xs={12} md={4}>
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 140,
+            }}
+          >
+            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+              Total Passes
+            </Typography>
+            <Typography component="p" variant="h4">
+              {restaurant?.passesIssued || 0}
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 140,
+            }}
+          >
+            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+              Active Promotions
+            </Typography>
+            <Typography component="p" variant="h4">
+              {restaurant?.activePromotions?.length || 0}
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              height: 140,
+            }}
+          >
+            <Typography component="h2" variant="h6" color="primary" gutterBottom>
+              Customer Engagement
+            </Typography>
+            <Typography component="p" variant="h4">
+              {restaurant?.totalEngagements || 0}
+            </Typography>
+          </Paper>
+        </Grid>
       </Grid>
-      <Button variant="contained" sx={{ mt: 4 }} onClick={handleAddBrand}>Add New Brand</Button>
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="xs" fullWidth>
-        <DialogTitle>{editBrand ? 'Edit Brand' : 'Add New Brand'}</DialogTitle>
-        <DialogContent>
-          {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
-          <TextField
-            label="Brand Name"
-            fullWidth
-            margin="dense"
-            value={brandName}
-            onChange={e => setBrandName(e.target.value)}
-            autoFocus
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSaveBrand} variant="contained" disabled={dialogLoading || !brandName.trim()}>
-            {dialogLoading ? <CircularProgress size={24} /> : (editBrand ? 'Save Changes' : 'Add Brand')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+    </Container>
   );
 };
 

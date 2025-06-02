@@ -4,7 +4,7 @@ import { ThemeProvider, createTheme } from '@mui/material';
 import Homepage from './components/Homepage';
 import SignUp from './components/Auth/SignUp';
 import SignIn from './components/Auth/SignIn';
-import Dashboard from './components/dashboard/Dashboard';
+import Dashboard from './components/Dashboard/Dashboard';
 import BrandManager from './components/brand/BrandManager';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import PassView from './components/PassView';
