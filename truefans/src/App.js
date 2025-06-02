@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import Homepage from './components/Homepage';
@@ -6,8 +6,8 @@ import SignUp from './components/Auth/SignUp';
 import SignIn from './components/Auth/SignIn';
 import Dashboard from './components/Dashboard/Dashboard';
 import BrandManager from './components/Brand/BrandManager';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import PassView from './components/PassView';
+import { AuthProvider, useAuth } from '../frontend/src/contexts/AuthContext';
 
 const theme = createTheme({
   palette: {
@@ -27,34 +27,15 @@ const theme = createTheme({
 });
 
 const PrivateRoute = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const auth = getAuth();
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, [auth]);
-  if (loading) return <div>Loading...</div>;
-  return user ? children : <Navigate to="/" />;
+  const { currentUser } = useAuth();
+  return currentUser ? children : <Navigate to="/" />;
 };
 
 function AppContent() {
-  const [showSignUp, setShowSignUp] = useState(false);
-  const [showSignIn, setShowSignIn] = useState(false);
-  const auth = getAuth();
+  const [showSignUp, setShowSignUp] = React.useState(false);
+  const [showSignIn, setShowSignIn] = React.useState(false);
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        navigate('/dashboard');
-      }
-    });
-    return () => unsubscribe();
-  }, [auth, navigate]);
+  const { currentUser, userRole } = useAuth();
 
   const handleSignInSuccess = () => {
     setShowSignIn(false);
@@ -105,9 +86,11 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 
