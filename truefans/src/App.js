@@ -44,11 +44,12 @@ const PrivateRoute = ({ children }) => {
 function App() {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
-  const [user, setUser] = useState(null);
   const auth = getAuth();
   
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, setUser);
+    const unsubscribe = onAuthStateChanged(auth, () => {
+      // We don't need to do anything with the user state here
+    });
     return () => unsubscribe();
   }, [auth]);
 
