@@ -11,10 +11,59 @@ import BrandManager from './components/BrandManager';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#E63976', // Bold Rose Pink
+      contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#FFC857', // Warm Gold / Yellow
+    },
+    background: {
+      default: '#FFF8F8', // Light Blush White
+      paper: '#FFE6EE', // Pale Rose Tint for cards
+    },
+    text: {
+      primary: '#2E2E2E', // Charcoal / Soft Black
+      secondary: '#6B7280', // Cool Gray
+    },
+    success: {
+      main: '#2ECC71', // Fresh Mint Green
+    },
+    info: {
+      main: '#1B1F3B', // Deep Navy (for NavBar)
+    },
+    action: {
+      hover: '#C62E66', // Slightly deeper pink for hover
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          fontWeight: 600,
+        },
+        containedPrimary: {
+          backgroundColor: '#E63976',
+          color: '#FFF',
+          '&:hover': {
+            backgroundColor: '#C62E66',
+          },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        colorPrimary: {
+          backgroundColor: '#1B1F3B',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#FFE6EE',
+        },
+      },
     },
   },
 });
