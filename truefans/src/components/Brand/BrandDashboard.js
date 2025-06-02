@@ -144,6 +144,9 @@ const BrandDashboard = () => {
         </DialogActions>
       </Dialog>
     </Container>
+    <Box sx={{ width: '100%', textAlign: 'center', py: 2, color: 'text.secondary', fontSize: 14 }}>
+      Varte Enterprises Inc
+    </Box>
   );
 };
 

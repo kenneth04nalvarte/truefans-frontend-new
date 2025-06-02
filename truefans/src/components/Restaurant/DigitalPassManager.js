@@ -132,207 +132,212 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Digital Passes
-        </Typography>
-      </Box>
+    <>
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+          <Typography variant="h4" component="h1">
+            Digital Passes
+          </Typography>
+        </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-      <Grid container spacing={3}>
-        {passes.map((pass) => (
-          <Grid item xs={12} md={6} lg={4} key={pass.id}>
-            <Card>
-              <CardContent>
-                {pass.image && (
-                  <Box sx={{ mb: 2, textAlign: 'center' }}>
-                    <img
-                      src={pass.image}
-                      alt={pass.name}
-                      style={{ maxWidth: '100%', maxHeight: '200px' }}
-                    />
-                  </Box>
-                )}
-                <Typography variant="h6" gutterBottom>
-                  {pass.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {pass.description}
-                </Typography>
-                <Typography variant="body2" paragraph>
-                  <strong>Benefits:</strong> {pass.benefits}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Validity:</strong> {pass.validityPeriod} days
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, justifyContent: 'center' }}>
-                  {[...Array(5)].map((_, i) => (
-                    <Box
-                      key={i}
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        border: '2px solid',
-                        borderColor: pass.color || '#1976d2',
-                        background: i < (pass.punches || 0) ? (pass.color || '#1976d2') : 'transparent',
-                        borderRadius: 2,
-                        mx: 0.5
-                      }}
-                    />
-                  ))}
-                </Box>
-                <Box sx={{ mt: 2, textAlign: 'center' }}>
-                  <QRCodeSVG
-                    value={`https://gettruefans.netlify.app/register?brandId=${pass.brandId || brandId}&passId=${pass.id}`}
-                    size={200}
-                    level="H"
-                  />
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Registration URL:<br />
-                    <a href={`https://gettruefans.netlify.app/register?brandId=${pass.brandId || brandId}&passId=${pass.id}`} target="_blank" rel="noopener noreferrer">
-                      https://gettruefans.netlify.app/register?brandId={pass.brandId || brandId}&passId={pass.id}
-                    </a>
+        <Grid container spacing={3}>
+          {passes.map((pass) => (
+            <Grid item xs={12} md={6} lg={4} key={pass.id}>
+              <Card>
+                <CardContent>
+                  {pass.image && (
+                    <Box sx={{ mb: 2, textAlign: 'center' }}>
+                      <img
+                        src={pass.image}
+                        alt={pass.name}
+                        style={{ maxWidth: '100%', maxHeight: '200px' }}
+                      />
+                    </Box>
+                  )}
+                  <Typography variant="h6" gutterBottom>
+                    {pass.name}
                   </Typography>
-                  <Button variant="outlined" sx={{ mt: 1, mr: 1 }}>Add to Google Wallet</Button>
-                  <Button variant="outlined" sx={{ mt: 1 }}>Add to Apple Wallet</Button>
-                </Box>
-              </CardContent>
-              <CardActions>
-                <Button
-                  size="small"
-                  color={pass.active ? 'error' : 'success'}
-                  onClick={() => handleTogglePass(pass.id, pass.active)}
-                >
-                  {pass.active ? 'Deactivate' : 'Activate'}
-                </Button>
-                <Button
-                  size="small"
-                  onClick={() => window.open(`${window.location.origin}/pass/${pass.id}`, '_blank')}
-                >
-                  View Pass
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                  <Typography variant="body2" color="text.secondary" paragraph>
+                    {pass.description}
+                  </Typography>
+                  <Typography variant="body2" paragraph>
+                    <strong>Benefits:</strong> {pass.benefits}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Validity:</strong> {pass.validityPeriod} days
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, justifyContent: 'center' }}>
+                    {[...Array(5)].map((_, i) => (
+                      <Box
+                        key={i}
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          border: '2px solid',
+                          borderColor: pass.color || '#1976d2',
+                          background: i < (pass.punches || 0) ? (pass.color || '#1976d2') : 'transparent',
+                          borderRadius: 2,
+                          mx: 0.5
+                        }}
+                      />
+                    ))}
+                  </Box>
+                  <Box sx={{ mt: 2, textAlign: 'center' }}>
+                    <QRCodeSVG
+                      value={`https://gettruefans.netlify.app/register?brandId=${pass.brandId || brandId}&passId=${pass.id}`}
+                      size={200}
+                      level="H"
+                    />
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Registration URL:<br />
+                      <a href={`https://gettruefans.netlify.app/register?brandId=${pass.brandId || brandId}&passId=${pass.id}`} target="_blank" rel="noopener noreferrer">
+                        https://gettruefans.netlify.app/register?brandId={pass.brandId || brandId}&passId={pass.id}
+                      </a>
+                    </Typography>
+                    <Button variant="outlined" sx={{ mt: 1, mr: 1 }}>Add to Google Wallet</Button>
+                    <Button variant="outlined" sx={{ mt: 1 }}>Add to Apple Wallet</Button>
+                  </Box>
+                </CardContent>
+                <CardActions>
+                  <Button
+                    size="small"
+                    color={pass.active ? 'error' : 'success'}
+                    onClick={() => handleTogglePass(pass.id, pass.active)}
+                  >
+                    {pass.active ? 'Deactivate' : 'Activate'}
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() => window.open(`${window.location.origin}/pass/${pass.id}`, '_blank')}
+                  >
+                    View Pass
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
-      <Dialog 
-        open={open} 
-        onClose={onClose} 
-        maxWidth="sm" 
-        fullWidth
-      >
-        <DialogTitle>Create New Digital Pass</DialogTitle>
-        <DialogContent>
-          {dialogError && (
-            <Typography color="error" sx={{ mb: 2 }}>
-              {dialogError}
-            </Typography>
-          )}
-          <Box sx={{ pt: 2 }}>
-            <TextField
-              fullWidth
-              label="Pass Name"
-              value={newPass.name}
-              onChange={(e) => setNewPass(prev => ({ ...prev, name: e.target.value }))}
-              margin="normal"
-              required
-              autoFocus
-            />
-            <TextField
-              fullWidth
-              label="Description"
-              value={newPass.description}
-              onChange={(e) => setNewPass(prev => ({ ...prev, description: e.target.value }))}
-              margin="normal"
-              multiline
-              rows={3}
-            />
-            <TextField
-              fullWidth
-              label="Benefits"
-              value={newPass.benefits}
-              onChange={(e) => setNewPass(prev => ({ ...prev, benefits: e.target.value }))}
-              margin="normal"
-              multiline
-              rows={2}
-              placeholder="e.g., 10% off all items, Free dessert with main course"
-            />
-            <TextField
-              fullWidth
-              label="Validity Period (days)"
-              type="number"
-              value={newPass.validityPeriod}
-              onChange={(e) => setNewPass(prev => ({ ...prev, validityPeriod: e.target.value }))}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Color"
-              type="color"
-              value={newPass.color}
-              onChange={e => setNewPass(prev => ({ ...prev, color: e.target.value }))}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-              <Typography sx={{ mr: 2 }}>Punch Card:</Typography>
-              {[...Array(5)].map((_, i) => (
-                <Box
-                  key={i}
-                  onClick={() => handlePunchBoxClick(i)}
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    border: '2px solid',
-                    borderColor: newPass.color,
-                    background: i < newPass.punches ? newPass.color : 'transparent',
-                    borderRadius: 2,
-                    cursor: 'pointer',
-                    mx: 0.5
-                  }}
-                />
-              ))}
-            </Box>
-            <Button
-              variant="contained"
-              component="label"
-              sx={{ mt: 2 }}
-            >
-              Upload Pass Image
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-            </Button>
-            {newPass.image && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                Selected: {newPass.image.name}
+        <Dialog 
+          open={open} 
+          onClose={onClose} 
+          maxWidth="sm" 
+          fullWidth
+        >
+          <DialogTitle>Create New Digital Pass</DialogTitle>
+          <DialogContent>
+            {dialogError && (
+              <Typography color="error" sx={{ mb: 2 }}>
+                {dialogError}
               </Typography>
             )}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button 
-            onClick={handleCreatePass} 
-            variant="contained" 
-            disabled={dialogLoading || !newPass.name.trim()}
-          >
-            {dialogLoading ? 'Saving...' : 'Create Pass'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+            <Box sx={{ pt: 2 }}>
+              <TextField
+                fullWidth
+                label="Pass Name"
+                value={newPass.name}
+                onChange={(e) => setNewPass(prev => ({ ...prev, name: e.target.value }))}
+                margin="normal"
+                required
+                autoFocus
+              />
+              <TextField
+                fullWidth
+                label="Description"
+                value={newPass.description}
+                onChange={(e) => setNewPass(prev => ({ ...prev, description: e.target.value }))}
+                margin="normal"
+                multiline
+                rows={3}
+              />
+              <TextField
+                fullWidth
+                label="Benefits"
+                value={newPass.benefits}
+                onChange={(e) => setNewPass(prev => ({ ...prev, benefits: e.target.value }))}
+                margin="normal"
+                multiline
+                rows={2}
+                placeholder="e.g., 10% off all items, Free dessert with main course"
+              />
+              <TextField
+                fullWidth
+                label="Validity Period (days)"
+                type="number"
+                value={newPass.validityPeriod}
+                onChange={(e) => setNewPass(prev => ({ ...prev, validityPeriod: e.target.value }))}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="Color"
+                type="color"
+                value={newPass.color}
+                onChange={e => setNewPass(prev => ({ ...prev, color: e.target.value }))}
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                <Typography sx={{ mr: 2 }}>Punch Card:</Typography>
+                {[...Array(5)].map((_, i) => (
+                  <Box
+                    key={i}
+                    onClick={() => handlePunchBoxClick(i)}
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      border: '2px solid',
+                      borderColor: newPass.color,
+                      background: i < newPass.punches ? newPass.color : 'transparent',
+                      borderRadius: 2,
+                      cursor: 'pointer',
+                      mx: 0.5
+                    }}
+                  />
+                ))}
+              </Box>
+              <Button
+                variant="contained"
+                component="label"
+                sx={{ mt: 2 }}
+              >
+                Upload Pass Image
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </Button>
+              {newPass.image && (
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  Selected: {newPass.image.name}
+                </Typography>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button 
+              onClick={handleCreatePass} 
+              variant="contained" 
+              disabled={dialogLoading || !newPass.name.trim()}
+            >
+              {dialogLoading ? 'Saving...' : 'Create Pass'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+      <Box sx={{ width: '100%', textAlign: 'center', py: 2, color: 'text.secondary', fontSize: 14 }}>
+        Varte Enterprises Inc
+      </Box>
+    </>
   );
 };
 

@@ -93,96 +93,101 @@ const BrandManager = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Paper sx={{ p: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h5">{brandName || 'Brand'}</Typography>
-          <Box display="flex" alignItems="center">
-            <Button onClick={() => navigate(-1)} sx={{ mr: 2 }}>Back</Button>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><AccountCircleIcon /></Avatar>
+    <>
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Paper sx={{ p: 3 }}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h5">{brandName || 'Brand'}</Typography>
+            <Box display="flex" alignItems="center">
+              <Button onClick={() => navigate(-1)} sx={{ mr: 2 }}>Back</Button>
+              <Avatar sx={{ bgcolor: 'primary.main' }}><AccountCircleIcon /></Avatar>
+            </Box>
           </Box>
-        </Box>
-        <Tabs value={tab} onChange={(_, v) => setTab(v)} indicatorColor="primary" textColor="primary" variant="fullWidth" sx={{ mb: 3 }}>
-          <Tab label="Locations" />
-          <Tab label="Digital Passes" />
-          <Tab label="Settings" />
-        </Tabs>
-        {tab === 0 && (
-          <Box>
-            <Typography variant="subtitle1" sx={{ mb: 2 }}>Locations:</Typography>
-            <Grid container spacing={2}>
-              {locations.map(loc => (
-                <Grid item xs={12} key={loc.id}>
-                  <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                      <Typography>{loc.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">{loc.address}</Typography>
-                      <Typography variant="body2" color="text.secondary">{loc.phone}</Typography>
-                    </Box>
-                    <Box>
-                      <Button size="small" onClick={() => handleEditLocation(loc)} sx={{ mr: 1 }}>Edit</Button>
-                      <Button size="small" color="error" onClick={() => handleRemoveLocation(loc.id)}>Remove</Button>
-                    </Box>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-            <Button variant="contained" sx={{ mt: 3 }} onClick={handleAddLocation}>Add New Location</Button>
-          </Box>
-        )}
-        {tab === 1 && (
-          <Box>
-            <Typography variant="subtitle1" sx={{ mb: 2 }}>Digital Passes:</Typography>
-            <DigitalPassManager brandId={brandId} open={openPassDialog} onClose={handleClosePassDialog} />
-            <Button variant="contained" sx={{ mt: 3 }} onClick={handleCreatePass}>Create New Pass</Button>
-          </Box>
-        )}
-        {tab === 2 && (
-          <Box>
-            <Typography>Settings coming soon...</Typography>
-          </Box>
-        )}
-      </Paper>
-      {/* Location Dialog */}
-      <Dialog open={openLocationDialog} onClose={handleCloseLocationDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editLocation ? 'Edit Location' : 'Add New Location'}</DialogTitle>
-        <DialogContent>
-          {locationError && (
-            <Typography color="error" sx={{ mb: 2 }}>{locationError}</Typography>
+          <Tabs value={tab} onChange={(_, v) => setTab(v)} indicatorColor="primary" textColor="primary" variant="fullWidth" sx={{ mb: 3 }}>
+            <Tab label="Locations" />
+            <Tab label="Digital Passes" />
+            <Tab label="Settings" />
+          </Tabs>
+          {tab === 0 && (
+            <Box>
+              <Typography variant="subtitle1" sx={{ mb: 2 }}>Locations:</Typography>
+              <Grid container spacing={2}>
+                {locations.map(loc => (
+                  <Grid item xs={12} key={loc.id}>
+                    <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography>{loc.name}</Typography>
+                        <Typography variant="body2" color="text.secondary">{loc.address}</Typography>
+                        <Typography variant="body2" color="text.secondary">{loc.phone}</Typography>
+                      </Box>
+                      <Box>
+                        <Button size="small" onClick={() => handleEditLocation(loc)} sx={{ mr: 1 }}>Edit</Button>
+                        <Button size="small" color="error" onClick={() => handleRemoveLocation(loc.id)}>Remove</Button>
+                      </Box>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+              <Button variant="contained" sx={{ mt: 3 }} onClick={handleAddLocation}>Add New Location</Button>
+            </Box>
           )}
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Location Name"
-            fullWidth
-            value={locationName}
-            onChange={e => setLocationName(e.target.value)}
-            required
-          />
-          <TextField
-            margin="dense"
-            label="Address"
-            fullWidth
-            value={locationAddress}
-            onChange={e => setLocationAddress(e.target.value)}
-          />
-          <TextField
-            margin="dense"
-            label="Phone"
-            fullWidth
-            value={locationPhone}
-            onChange={e => setLocationPhone(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseLocationDialog}>Cancel</Button>
-          <Button onClick={handleSaveLocation} variant="contained" disabled={locationLoading || !locationName.trim()}>
-            {locationLoading ? 'Saving...' : 'Save'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/* Pass Dialog is handled inside DigitalPassManager for live preview */}
-    </Container>
+          {tab === 1 && (
+            <Box>
+              <Typography variant="subtitle1" sx={{ mb: 2 }}>Digital Passes:</Typography>
+              <DigitalPassManager brandId={brandId} open={openPassDialog} onClose={handleClosePassDialog} />
+              <Button variant="contained" sx={{ mt: 3 }} onClick={handleCreatePass}>Create New Pass</Button>
+            </Box>
+          )}
+          {tab === 2 && (
+            <Box>
+              <Typography>Settings coming soon...</Typography>
+            </Box>
+          )}
+        </Paper>
+        {/* Location Dialog */}
+        <Dialog open={openLocationDialog} onClose={handleCloseLocationDialog} maxWidth="sm" fullWidth>
+          <DialogTitle>{editLocation ? 'Edit Location' : 'Add New Location'}</DialogTitle>
+          <DialogContent>
+            {locationError && (
+              <Typography color="error" sx={{ mb: 2 }}>{locationError}</Typography>
+            )}
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Location Name"
+              fullWidth
+              value={locationName}
+              onChange={e => setLocationName(e.target.value)}
+              required
+            />
+            <TextField
+              margin="dense"
+              label="Address"
+              fullWidth
+              value={locationAddress}
+              onChange={e => setLocationAddress(e.target.value)}
+            />
+            <TextField
+              margin="dense"
+              label="Phone"
+              fullWidth
+              value={locationPhone}
+              onChange={e => setLocationPhone(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseLocationDialog}>Cancel</Button>
+            <Button onClick={handleSaveLocation} variant="contained" disabled={locationLoading || !locationName.trim()}>
+              {locationLoading ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+        {/* Pass Dialog is handled inside DigitalPassManager for live preview */}
+      </Container>
+      <Box sx={{ width: '100%', textAlign: 'center', py: 2, color: 'text.secondary', fontSize: 14 }}>
+        Varte Enterprises Inc
+      </Box>
+    </>
   );
 };
 
