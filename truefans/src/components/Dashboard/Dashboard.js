@@ -12,12 +12,7 @@ import {
   CardContent,
   CardActions
 } from '@mui/material';
-import {
-  QrCode2 as QrCodeIcon,
-  LocalOffer as OfferIcon,
-  Warning as WarningIcon
-} from '@mui/icons-material';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../../config/firebase';
 import { useNavigate } from 'react-router-dom';
 
@@ -55,15 +50,6 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleManageSubscription = () => {
-    navigate('/subscription');
-  };
-
-  const isSubscriptionActive = () => {
-    if (!restaurant) return false;
-    return ['active', 'trial'].includes(restaurant.subscriptionStatus);
   };
 
   const isTrialExpiring = () => {
