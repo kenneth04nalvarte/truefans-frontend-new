@@ -5,7 +5,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 
 const BrandManager = () => {
   const { brandId } = useParams();
@@ -448,7 +448,7 @@ const BrandManager = () => {
                   <>
                     <Typography variant="body2" sx={{ mb: 2 }}>Scan or share this QR code with diners:</Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                      <QRCode value={`${window.location.origin}/pass/${qrPass.id}`} size={180} />
+                      <QRCodeSVG value={`${window.location.origin}/pass/${qrPass.id}`} size={180} />
                     </Box>
                     <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
                       {`${window.location.origin}/pass/${qrPass.id}`}
