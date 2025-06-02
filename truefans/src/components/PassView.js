@@ -79,13 +79,27 @@ const PassView = () => {
           <>
             <Box sx={{ mb: 3, p: 2, border: '1px dashed #E63976', borderRadius: 2, background: '#FFF8F8' }}>
               <Typography variant="subtitle2">Your Digital Pass</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                <Box sx={{ width: 48, height: 48, bgcolor: pass.color || '#E63976', borderRadius: 2, mr: 2 }} />
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mt: 1,
+                  background: pass.color || '#E63976',
+                  borderRadius: 2,
+                  p: 2,
+                  color: '#fff',
+                }}
+              >
+                <Box sx={{ width: 48, height: 48, borderRadius: 2, mr: 2, overflow: 'hidden', bgcolor: '#fff' }}>
+                  {pass.image && (
+                    <img src={pass.image} alt="Pass Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  )}
+                </Box>
                 <Box>
-                  <Typography>{pass.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">{pass.description}</Typography>
-                  <Typography variant="body2" color="text.secondary">{pass.benefits}</Typography>
-                  <Typography variant="body2" color="text.secondary">Validity: {pass.validityPeriod || '30'} days</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 600 }}>{pass.name}</Typography>
+                  <Typography variant="body2" sx={{ color: '#fff' }}>{pass.description}</Typography>
+                  <Typography variant="body2" sx={{ color: '#fff' }}>{pass.benefits}</Typography>
+                  <Typography variant="body2" sx={{ color: '#fff' }}>Validity: {pass.validityPeriod || '30'} days</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                     {[...Array(5)].map((_, i) => (
                       <Box
@@ -94,8 +108,8 @@ const PassView = () => {
                           width: 24,
                           height: 24,
                           border: '2px solid',
-                          borderColor: pass.color || '#E63976',
-                          background: i < (pass.punches || 0) ? (pass.color || '#E63976') : 'transparent',
+                          borderColor: '#fff',
+                          background: i < (pass.punches || 0) ? '#fff' : 'transparent',
                           borderRadius: 2,
                           mx: 0.5
                         }}
