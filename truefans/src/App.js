@@ -1,70 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
-import Login from './components/Auth/Login';
-import BrandDashboard from './components/Brand/BrandDashboard';
-import Navbar from './components/Navigation/Navbar';
+import Homepage from './components/Homepage';
+import SignUp from './components/auth/SignUp';
+import SignIn from './components/auth/SignIn';
+import Dashboard from './components/dashboard/Dashboard';
+import BrandManager from './components/brand/BrandManager';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useState, useEffect } from 'react';
-import BrandManager from './components/BrandManager';
+import PassView from './components/PassView';
 
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#E63976', // Bold Rose Pink
-      contrastText: '#FFFFFF',
-    },
-    secondary: {
-      main: '#FFC857', // Warm Gold / Yellow
-    },
-    background: {
-      default: '#FFF8F8', // Light Blush White
-      paper: '#FFE6EE', // Pale Rose Tint for cards
-    },
-    text: {
-      primary: '#2E2E2E', // Charcoal / Soft Black
-      secondary: '#6B7280', // Cool Gray
-    },
-    success: {
-      main: '#2ECC71', // Fresh Mint Green
-    },
-    info: {
-      main: '#1B1F3B', // Deep Navy (for NavBar)
-    },
-    action: {
-      hover: '#C62E66', // Slightly deeper pink for hover
-    },
+    primary: { main: '#E63976', contrastText: '#FFFFFF' },
+    secondary: { main: '#FFC857' },
+    background: { default: '#FFF8F8', paper: '#FFE6EE' },
+    text: { primary: '#2E2E2E', secondary: '#6B7280' },
+    success: { main: '#2ECC71' },
+    info: { main: '#1B1F3B' },
+    action: { hover: '#C62E66' },
   },
   components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          fontWeight: 600,
-        },
-        containedPrimary: {
-          backgroundColor: '#E63976',
-          color: '#FFF',
-          '&:hover': {
-            backgroundColor: '#C62E66',
-          },
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        colorPrimary: {
-          backgroundColor: '#1B1F3B',
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#FFE6EE',
-        },
-      },
-    },
+    MuiButton: { styleOverrides: { root: { borderRadius: 8, fontWeight: 600 } } },
+    MuiAppBar: { styleOverrides: { colorPrimary: { backgroundColor: '#1B1F3B' } } },
+    MuiPaper: { styleOverrides: { root: { backgroundColor: '#FFE6EE' } } },
   },
 });
 
@@ -72,42 +30,65 @@ const PrivateRoute = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const auth = getAuth();
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [auth]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  return user ? children : <Navigate to="/login" />;
+  if (loading) return <div>Loading...</div>;
+  return user ? children : <Navigate to="/" />;
 };
 
 function App() {
+  const [showSignUp, setShowSignUp] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const auth = getAuth();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return () => unsubscribe();
+  }, [auth]);
+
   return (
     <ThemeProvider theme={theme}>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <>
+                <Homepage
+                  onSignUp={() => setShowSignUp(true)}
+                  onSignIn={() => setShowSignIn(true)}
+                />
+                <SignUp open={showSignUp} onClose={() => setShowSignUp(false)} onSuccess={() => { setShowSignUp(false); }} />
+                <SignIn open={showSignIn} onClose={() => setShowSignIn(false)} onSuccess={() => { setShowSignIn(false); }} />
+              </>
+            }
+          />
           <Route
             path="/dashboard"
             element={
               <PrivateRoute>
-                <>
-                  <Navbar />
-                  <BrandDashboard />
-                </>
+                <Dashboard />
               </PrivateRoute>
             }
           />
-          <Route path="/brands/:brandId" element={<BrandManager />} />
-          <Route path="*" element={<Navigate to="/dashboard" />} />
+          <Route
+            path="/brands/:brandId"
+            element={
+              <PrivateRoute>
+                <BrandManager />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/pass/:passId"
+            element={<PassView />}
+          />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
     </ThemeProvider>
