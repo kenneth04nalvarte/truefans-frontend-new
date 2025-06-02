@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import Homepage from './components/Homepage';
 import SignUp from './components/Auth/SignUp';
@@ -41,60 +41,74 @@ const PrivateRoute = ({ children }) => {
   return user ? children : <Navigate to="/" />;
 };
 
-function App() {
+function AppContent() {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const auth = getAuth();
+  const navigate = useNavigate();
   
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, () => {
-      // We don't need to do anything with the user state here
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate('/dashboard');
+      }
     });
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, navigate]);
+
+  const handleSignInSuccess = () => {
+    setShowSignIn(false);
+    navigate('/dashboard');
+  };
 
   return (
     <ThemeProvider theme={theme}>
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <Homepage
-                  onSignUp={() => setShowSignUp(true)}
-                  onSignIn={() => setShowSignIn(true)}
-                />
-                <SignUp open={showSignUp} onClose={() => setShowSignUp(false)} onSuccess={() => { setShowSignUp(false); }} />
-                <SignIn open={showSignIn} onClose={() => setShowSignIn(false)} onSuccess={() => { setShowSignIn(false); }} />
-              </>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/brands/:brandId"
-            element={
-              <PrivateRoute>
-                <BrandManager />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/pass/:passId"
-            element={<PassView />}
-          />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <Homepage
+                onSignUp={() => setShowSignUp(true)}
+                onSignIn={() => setShowSignIn(true)}
+              />
+              <SignUp open={showSignUp} onClose={() => setShowSignUp(false)} onSuccess={() => { setShowSignUp(false); }} />
+              <SignIn open={showSignIn} onClose={() => setShowSignIn(false)} onSuccess={handleSignInSuccess} />
+            </>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/brands/:brandId"
+          element={
+            <PrivateRoute>
+              <BrandManager />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/pass/:passId"
+          element={<PassView />}
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </ThemeProvider>
   );
 }
 
-export default App; 
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+export default App;
