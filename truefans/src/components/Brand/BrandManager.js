@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Avatar, Tabs, Tab, Box, Paper, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
+import { Typography, Button, Avatar, Tabs, Tab, Box, Paper, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../config/firebase';
@@ -40,7 +40,7 @@ const BrandManager = () => {
   useEffect(() => {
     fetchLocations();
     fetchPasses();
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brandId]);
 
   const fetchLocations = async () => {

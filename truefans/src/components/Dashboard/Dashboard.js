@@ -29,6 +29,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchRestaurantData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchRestaurantData = async () => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import Homepage from './components/Homepage';
 import SignUp from './components/Auth/SignUp';
@@ -46,6 +46,7 @@ function App() {
   const [showSignIn, setShowSignIn] = useState(false);
   const [user, setUser] = useState(null);
   const auth = getAuth();
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, setUser);
     return () => unsubscribe();
