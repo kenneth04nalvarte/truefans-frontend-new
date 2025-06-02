@@ -22,7 +22,7 @@ import { collection, addDoc, query, where, getDocs, updateDoc, doc } from 'fireb
 import { db, auth } from '../../config/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const DigitalPassManager = ({ brandId }) => {
+const DigitalPassManager = ({ brandId, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [passes, setPasses] = useState([]);
@@ -39,24 +39,20 @@ const DigitalPassManager = ({ brandId }) => {
 
   useEffect(() => {
     fetchPasses();
-  }, []);
+  }, [brandId]);
 
   const fetchPasses = async () => {
     try {
-      const user = auth.currentUser;
-      if (!user) return;
-
+      if (!brandId) return;
       const passesQuery = query(
         collection(db, 'digitalPasses'),
-        where('restaurantId', '==', user.restaurantId)
+        where('brandId', '==', brandId)
       );
-      
       const querySnapshot = await getDocs(passesQuery);
       const passesList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      
       setPasses(passesList);
     } catch (error) {
       setError('Failed to fetch digital passes');
@@ -66,13 +62,11 @@ const DigitalPassManager = ({ brandId }) => {
   const handleCreatePass = async () => {
     setLoading(true);
     setError('');
-
     try {
       const user = auth.currentUser;
       if (!user) {
         throw new Error('You must be logged in to create a digital pass');
       }
-
       let imageUrl = '';
       if (newPass.image) {
         const storage = getStorage();
@@ -80,7 +74,6 @@ const DigitalPassManager = ({ brandId }) => {
         await uploadBytes(imageRef, newPass.image);
         imageUrl = await getDownloadURL(imageRef);
       }
-
       const passData = {
         ...newPass,
         image: imageUrl,
@@ -91,9 +84,9 @@ const DigitalPassManager = ({ brandId }) => {
         punches: newPass.punches,
         color: newPass.color
       };
-
       await addDoc(collection(db, 'digitalPasses'), passData);
       setOpenDialog(false);
+      if (onClose) onClose();
       setNewPass({
         name: '',
         description: '',
