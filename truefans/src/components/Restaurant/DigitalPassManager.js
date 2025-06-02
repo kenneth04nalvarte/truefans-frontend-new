@@ -35,6 +35,8 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
     color: '#1976d2',
     punches: 0
   });
+  const [dialogError, setDialogError] = useState('');
+  const [dialogLoading, setDialogLoading] = useState(false);
 
   useEffect(() => {
     fetchPasses();
@@ -59,8 +61,8 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
   };
 
   const handleCreatePass = async () => {
-    setLoading(true);
-    setError('');
+    setDialogLoading(true);
+    setDialogError('');
     try {
       const user = auth.currentUser;
       if (!user) {
@@ -96,9 +98,10 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
       });
       fetchPasses();
     } catch (error) {
-      setError(error.message);
+      setDialogError(error.message);
+      console.log('Pass Firestore error:', error);
     } finally {
-      setLoading(false);
+      setDialogLoading(false);
     }
   };
 
@@ -230,6 +233,7 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle>Create New Digital Pass</DialogTitle>
         <DialogContent>
+          {dialogError && <Typography color="error">{dialogError}</Typography>}
           <Box sx={{ pt: 2 }}>
             <TextField
               fullWidth
@@ -315,12 +319,8 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button
-            onClick={handleCreatePass}
-            variant="contained"
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} /> : 'Create Pass'}
+          <Button onClick={handleCreatePass} variant="contained" disabled={dialogLoading}>
+            {dialogLoading ? 'Saving...' : 'Create Pass'}
           </Button>
         </DialogActions>
       </Dialog>
