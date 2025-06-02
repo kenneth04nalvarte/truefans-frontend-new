@@ -198,46 +198,46 @@ const BrandManager = () => {
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4, maxWidth: 700, mx: 'auto' }}>
       <Paper sx={{ p: 3 }}>
+        {/* Top Bar */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h5">{brandName}</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>{brandName}</Typography>
           <Box display="flex" alignItems="center">
             <Button onClick={() => navigate(-1)} sx={{ mr: 2 }}>Back</Button>
             <Avatar sx={{ bgcolor: 'primary.main' }}><AccountCircleIcon /></Avatar>
           </Box>
         </Box>
+        {/* Tabs */}
         <Tabs value={tab} onChange={(_, v) => setTab(v)} indicatorColor="primary" textColor="primary" variant="fullWidth" sx={{ mb: 3 }}>
           <Tab label="Locations" />
           <Tab label="Digital Passes" />
           <Tab label="Settings" />
         </Tabs>
+        {/* Locations Tab */}
         {tab === 0 && (
           <Box>
             <Typography variant="subtitle1" sx={{ mb: 2 }}>Locations:</Typography>
             {loading ? (
               <Box sx={{ textAlign: 'center', mt: 4 }}><CircularProgress /></Box>
             ) : (
-              <Grid container spacing={2}>
+              <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
                 {locations.map(loc => (
-                  <Grid item xs={12} key={loc.id}>
-                    <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box>
-                        <Typography>{loc.name}</Typography>
-                        <Typography variant="body2" color="text.secondary">{loc.address}</Typography>
-                        <Typography variant="body2" color="text.secondary">{loc.phone}</Typography>
-                      </Box>
-                      <Box>
-                        <Button size="small" onClick={() => handleEditLocation(loc)} sx={{ mr: 1 }}>Edit</Button>
-                        <Button size="small" color="error" onClick={() => handleRemoveLocation(loc.id)}>Remove</Button>
-                      </Box>
-                    </Paper>
-                  </Grid>
+                  <Box component="li" key={loc.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, borderBottom: '1px solid #eee', pb: 1 }}>
+                    <Typography>{loc.name}</Typography>
+                    <Box>
+                      <Button size="small" sx={{ ml: 1 }} onClick={() => handleEditLocation(loc)}>Edit</Button>
+                      <Button size="small" color="error" sx={{ ml: 1 }} onClick={() => handleRemoveLocation(loc.id)}>Remove</Button>
+                    </Box>
+                  </Box>
                 ))}
-              </Grid>
+              </Box>
             )}
-            <Button variant="contained" sx={{ mt: 3 }} onClick={handleAddLocation}>Add New Location</Button>
-            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+            <Box sx={{ textAlign: 'center', mt: 3 }}>
+              <Button variant="contained" onClick={handleAddLocation}>Add New Location</Button>
+            </Box>
+            {/* Location Dialog */}
+            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="xs" fullWidth>
               <DialogTitle>{editLocation ? 'Edit Location' : 'Add New Location'}</DialogTitle>
               <DialogContent>
                 {error && (
@@ -276,198 +276,181 @@ const BrandManager = () => {
             </Dialog>
           </Box>
         )}
+        {/* Digital Passes Tab */}
         {tab === 1 && (
           <Box>
             <Typography variant="subtitle1" sx={{ mb: 2 }}>Digital Passes:</Typography>
-            <Grid container spacing={2}>
+            <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
               {passes.map(pass => (
-                <Grid item xs={12} key={pass.id}>
-                  <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                      <Typography>{pass.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">{pass.description}</Typography>
-                      <Typography variant="body2" color="text.secondary">{pass.benefits}</Typography>
-                      <Typography variant="body2" color="text.secondary">Validity: {pass.validityPeriod} days</Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                        {[...Array(5)].map((_, i) => (
-                          <Box
-                            key={i}
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              border: '2px solid',
-                              borderColor: pass.color || '#E63976',
-                              background: i < (pass.punches || 0) ? (pass.color || '#E63976') : 'transparent',
-                              borderRadius: 2,
-                              mx: 0.5
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-                    <Box>
-                      <Button size="small" onClick={() => handleEditPass(pass)} sx={{ mr: 1 }}>Edit</Button>
-                      <Button size="small" color="warning" onClick={() => handleDeactivatePass(pass)} sx={{ mr: 1 }}>Deactivate</Button>
-                      <Button size="small" onClick={() => handleViewPass(pass)} sx={{ mr: 1 }}>View</Button>
-                      <Button size="small" onClick={() => handleShowQR(pass)}>View QR/URL</Button>
-                    </Box>
-                  </Paper>
-                </Grid>
+                <Box component="li" key={pass.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, borderBottom: '1px solid #eee', pb: 1 }}>
+                  <Typography>{pass.name}</Typography>
+                  <Box>
+                    <Button size="small" sx={{ ml: 1 }} onClick={() => handleEditPass(pass)}>Edit</Button>
+                    <Button size="small" color="warning" sx={{ ml: 1 }} onClick={() => handleDeactivatePass(pass)}>Deactivate</Button>
+                    <Button size="small" sx={{ ml: 1 }} onClick={() => handleViewPass(pass)}>View</Button>
+                    <Button size="small" sx={{ ml: 1 }} onClick={() => handleShowQR(pass)}>QR</Button>
+                  </Box>
+                </Box>
               ))}
-            </Grid>
-            <Button variant="contained" sx={{ mt: 3 }} onClick={handleCreatePass}>Create New Pass</Button>
-            <Dialog open={openPassDialog} onClose={handleClosePassDialog} maxWidth="md" fullWidth>
-              <DialogTitle>{editPass ? 'Edit Pass' : 'Create New Pass'}</DialogTitle>
-              <DialogContent>
-                {passError && (
-                  <Typography color="error" sx={{ mb: 2 }}>{passError}</Typography>
-                )}
-                <Grid container spacing={3} alignItems="flex-start">
-                  <Grid item xs={12} md={7}>
-                    <TextField
-                      autoFocus
-                      margin="dense"
-                      label="Pass Name"
-                      fullWidth
-                      value={passName}
-                      onChange={e => setPassName(e.target.value)}
-                      required
-                    />
-                    <TextField
-                      margin="dense"
-                      label="Description"
-                      fullWidth
-                      value={passDescription}
-                      onChange={e => setPassDescription(e.target.value)}
-                    />
-                    <TextField
-                      margin="dense"
-                      label="Benefits"
-                      fullWidth
-                      value={passBenefits}
-                      onChange={e => setPassBenefits(e.target.value)}
-                    />
-                    <TextField
-                      margin="dense"
-                      label="Validity Period (days)"
-                      type="number"
-                      fullWidth
-                      value={passValidity}
-                      onChange={e => setPassValidity(e.target.value)}
-                    />
-                    <TextField
-                      margin="dense"
-                      label="Color"
-                      type="color"
-                      fullWidth
-                      value={passColor}
-                      onChange={e => setPassColor(e.target.value)}
-                      InputLabelProps={{ shrink: true }}
-                    />
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                      <Typography sx={{ mr: 2 }}>Punch Card:</Typography>
-                      {[...Array(5)].map((_, i) => (
-                        <Box
-                          key={i}
-                          onClick={() => setPassPunches(i + 1)}
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            border: '2px solid',
-                            borderColor: passColor,
-                            background: i < passPunches ? passColor : 'transparent',
-                            borderRadius: 2,
-                            cursor: 'pointer',
-                            mx: 0.5
-                          }}
-                        />
-                      ))}
-                    </Box>
-                    <Button
-                      variant="contained"
-                      component="label"
-                      sx={{ mt: 2 }}
-                    >
-                      Upload Pass Image
-                      <input
-                        type="file"
-                        hidden
-                        accept="image/*"
-                        onChange={e => setPassImage(e.target.files[0])}
-                      />
-                    </Button>
-                    {passImage && (
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        Selected: {passImage.name}
-                      </Typography>
-                    )}
-                  </Grid>
-                  <Grid item xs={12} md={5}>
-                    <Box sx={{ mt: { xs: 3, md: 0 }, p: 2, border: '1px dashed #E63976', borderRadius: 2, background: '#FFF8F8', minHeight: 220 }}>
-                      <Typography variant="subtitle2">Live Preview:</Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                        <Box sx={{ width: 48, height: 48, bgcolor: passColor, borderRadius: 2, mr: 2 }} />
-                        <Box>
-                          <Typography>{passName || 'Pass Name'}</Typography>
-                          <Typography variant="body2" color="text.secondary">{passDescription || 'Description'}</Typography>
-                          <Typography variant="body2" color="text.secondary">{passBenefits || 'Benefits'}</Typography>
-                          <Typography variant="body2" color="text.secondary">Validity: {passValidity || '30'} days</Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                            {[...Array(5)].map((_, i) => (
-                              <Box
-                                key={i}
-                                sx={{
-                                  width: 24,
-                                  height: 24,
-                                  border: '2px solid',
-                                  borderColor: passColor,
-                                  background: i < passPunches ? passColor : 'transparent',
-                                  borderRadius: 2,
-                                  mx: 0.5
-                                }}
-                              />
-                            ))}
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleClosePassDialog}>Cancel</Button>
-                <Button onClick={handleSavePass} variant="contained" disabled={passLoading || !passName.trim()}>
-                  {passLoading ? 'Saving...' : (editPass ? 'Save Changes' : 'Create Pass')}
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog open={qrDialogOpen} onClose={handleCloseQR} maxWidth="xs" fullWidth>
-              <DialogTitle>Pass QR Code & URL</DialogTitle>
-              <DialogContent sx={{ textAlign: 'center' }}>
-                {qrPass && (
-                  <>
-                    <Typography variant="body2" sx={{ mb: 2 }}>Scan or share this QR code with diners:</Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                      <QRCodeSVG value={`${window.location.origin}/pass/${qrPass.id}`} size={180} />
-                    </Box>
-                    <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
-                      {`${window.location.origin}/pass/${qrPass.id}`}
-                    </Typography>
-                  </>
-                )}
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseQR}>Close</Button>
-              </DialogActions>
-            </Dialog>
+            </Box>
+            <Box sx={{ textAlign: 'center', mt: 3 }}>
+              <Button variant="contained" onClick={handleCreatePass}>Create New Pass</Button>
+            </Box>
+            {/* Pass Dialog and QR Dialog remain unchanged */}
           </Box>
         )}
+        {/* Settings Tab */}
         {tab === 2 && (
           <Box>
             <Typography variant="subtitle1">Settings tab coming soon...</Typography>
           </Box>
         )}
       </Paper>
+      {/* QR Dialog and Pass Dialog remain unchanged */}
+      <Dialog open={qrDialogOpen} onClose={handleCloseQR} maxWidth="xs" fullWidth>
+        <DialogTitle>Pass QR Code & URL</DialogTitle>
+        <DialogContent sx={{ textAlign: 'center' }}>
+          {qrPass && (
+            <>
+              <Typography variant="body2" sx={{ mb: 2 }}>Scan or share this QR code with diners:</Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                <QRCodeSVG value={`${window.location.origin}/pass/${qrPass.id}`} size={180} />
+              </Box>
+              <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+                {`${window.location.origin}/pass/${qrPass.id}`}
+              </Typography>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseQR}>Close</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openPassDialog} onClose={handleClosePassDialog} maxWidth="md" fullWidth>
+        <DialogTitle>{editPass ? 'Edit Pass' : 'Create New Pass'}</DialogTitle>
+        <DialogContent>
+          {passError && (
+            <Typography color="error" sx={{ mb: 2 }}>{passError}</Typography>
+          )}
+          <Grid container spacing={3} alignItems="flex-start">
+            <Grid item xs={12} md={7}>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Pass Name"
+                fullWidth
+                value={passName}
+                onChange={e => setPassName(e.target.value)}
+                required
+              />
+              <TextField
+                margin="dense"
+                label="Description"
+                fullWidth
+                value={passDescription}
+                onChange={e => setPassDescription(e.target.value)}
+              />
+              <TextField
+                margin="dense"
+                label="Benefits"
+                fullWidth
+                value={passBenefits}
+                onChange={e => setPassBenefits(e.target.value)}
+              />
+              <TextField
+                margin="dense"
+                label="Validity Period (days)"
+                type="number"
+                fullWidth
+                value={passValidity}
+                onChange={e => setPassValidity(e.target.value)}
+              />
+              <TextField
+                margin="dense"
+                label="Color"
+                type="color"
+                fullWidth
+                value={passColor}
+                onChange={e => setPassColor(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                <Typography sx={{ mr: 2 }}>Punch Card:</Typography>
+                {[...Array(5)].map((_, i) => (
+                  <Box
+                    key={i}
+                    onClick={() => setPassPunches(i + 1)}
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      border: '2px solid',
+                      borderColor: passColor,
+                      background: i < passPunches ? passColor : 'transparent',
+                      borderRadius: 2,
+                      cursor: 'pointer',
+                      mx: 0.5
+                    }}
+                  />
+                ))}
+              </Box>
+              <Button
+                variant="contained"
+                component="label"
+                sx={{ mt: 2 }}
+              >
+                Upload Pass Image
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={e => setPassImage(e.target.files[0])}
+                />
+              </Button>
+              {passImage && (
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  Selected: {passImage.name}
+                </Typography>
+              )}
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <Box sx={{ mt: { xs: 3, md: 0 }, p: 2, border: '1px dashed #E63976', borderRadius: 2, background: '#FFF8F8', minHeight: 220 }}>
+                <Typography variant="subtitle2">Live Preview:</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <Box sx={{ width: 48, height: 48, bgcolor: passColor, borderRadius: 2, mr: 2 }} />
+                  <Box>
+                    <Typography>{passName || 'Pass Name'}</Typography>
+                    <Typography variant="body2" color="text.secondary">{passDescription || 'Description'}</Typography>
+                    <Typography variant="body2" color="text.secondary">{passBenefits || 'Benefits'}</Typography>
+                    <Typography variant="body2" color="text.secondary">Validity: {passValidity || '30'} days</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                      {[...Array(5)].map((_, i) => (
+                        <Box
+                          key={i}
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            border: '2px solid',
+                            borderColor: passColor,
+                            background: i < passPunches ? passColor : 'transparent',
+                            borderRadius: 2,
+                            mx: 0.5
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePassDialog}>Cancel</Button>
+          <Button onClick={handleSavePass} variant="contained" disabled={passLoading || !passName.trim()}>
+            {passLoading ? 'Saving...' : (editPass ? 'Save Changes' : 'Create Pass')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
