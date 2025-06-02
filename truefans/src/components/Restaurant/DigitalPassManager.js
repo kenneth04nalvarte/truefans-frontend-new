@@ -22,11 +22,10 @@ import { collection, addDoc, query, where, getDocs, updateDoc, doc } from 'fireb
 import { db, auth } from '../../config/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const DigitalPassManager = ({ brandId, onClose }) => {
+const DigitalPassManager = ({ brandId, onClose, open }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [passes, setPasses] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
   const [newPass, setNewPass] = useState({
     name: '',
     description: '',
@@ -85,7 +84,6 @@ const DigitalPassManager = ({ brandId, onClose }) => {
         color: newPass.color
       };
       await addDoc(collection(db, 'digitalPasses'), passData);
-      setOpenDialog(false);
       if (onClose) onClose();
       setNewPass({
         name: '',
@@ -139,7 +137,7 @@ const DigitalPassManager = ({ brandId, onClose }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setOpenDialog(true)}
+          onClick={onClose}
         >
           Create New Pass
         </Button>
@@ -229,7 +227,7 @@ const DigitalPassManager = ({ brandId, onClose }) => {
         ))}
       </Grid>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle>Create New Digital Pass</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>
@@ -316,7 +314,7 @@ const DigitalPassManager = ({ brandId, onClose }) => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button
             onClick={handleCreatePass}
             variant="contained"
