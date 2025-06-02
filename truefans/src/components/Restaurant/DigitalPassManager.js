@@ -22,7 +22,7 @@ import { collection, addDoc, query, where, getDocs, updateDoc, doc } from 'fireb
 import { db, auth } from '../../config/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const DigitalPassManager = () => {
+const DigitalPassManager = ({ brandId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [passes, setPasses] = useState([]);
@@ -85,6 +85,7 @@ const DigitalPassManager = () => {
         ...newPass,
         image: imageUrl,
         restaurantId: user.restaurantId,
+        brandId: brandId || user.brandId,
         createdAt: new Date().toISOString(),
         active: true,
         punches: newPass.punches,
@@ -201,10 +202,18 @@ const DigitalPassManager = () => {
                 </Box>
                 <Box sx={{ mt: 2, textAlign: 'center' }}>
                   <QRCodeSVG
-                    value={`${window.location.origin}/pass/${pass.id}`}
+                    value={`https://gettruefans.netlify.app/register?brandId=${pass.brandId || brandId}&passId=${pass.id}`}
                     size={200}
                     level="H"
                   />
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Registration URL:<br />
+                    <a href={`https://gettruefans.netlify.app/register?brandId=${pass.brandId || brandId}&passId=${pass.id}`} target="_blank" rel="noopener noreferrer">
+                      https://gettruefans.netlify.app/register?brandId={pass.brandId || brandId}&passId={pass.id}
+                    </a>
+                  </Typography>
+                  <Button variant="outlined" sx={{ mt: 1, mr: 1 }}>Add to Google Wallet</Button>
+                  <Button variant="outlined" sx={{ mt: 1 }}>Add to Apple Wallet</Button>
                 </Box>
               </CardContent>
               <CardActions>
