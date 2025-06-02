@@ -297,7 +297,35 @@ const BrandManager = () => {
             <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
               {passes.map(pass => (
                 <Box component="li" key={pass.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, borderBottom: '1px solid #eee', pb: 1 }}>
-                  <Typography>{pass.name}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', background: pass.color, borderRadius: 2, p: 2, minWidth: 220 }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: 2, mr: 2, overflow: 'hidden', bgcolor: '#fff' }}>
+                      {pass.image && (
+                        <img src={pass.image} alt="Pass Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      )}
+                    </Box>
+                    <Box>
+                      <Typography sx={{ color: '#fff', fontWeight: 600 }}>{pass.name}</Typography>
+                      <Typography variant="body2" sx={{ color: '#fff' }}>{pass.description}</Typography>
+                      <Typography variant="body2" sx={{ color: '#fff' }}>{pass.benefits}</Typography>
+                      <Typography variant="body2" sx={{ color: '#fff' }}>Validity: {pass.validityPeriod} days</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                        {[...Array(5)].map((_, i) => (
+                          <Box
+                            key={i}
+                            sx={{
+                              width: 18,
+                              height: 18,
+                              border: '2px solid',
+                              borderColor: '#fff',
+                              background: i < (pass.punches || 0) ? '#fff' : 'transparent',
+                              borderRadius: 2,
+                              mx: 0.5
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  </Box>
                   <Box>
                     <Button size="small" sx={{ ml: 1 }} onClick={() => handleEditPass(pass)}>Edit</Button>
                     <Button size="small" color="warning" sx={{ ml: 1 }} onClick={() => handleDeactivatePass(pass)}>Deactivate</Button>
@@ -429,13 +457,27 @@ const BrandManager = () => {
             <Grid item xs={12} md={5}>
               <Box sx={{ mt: { xs: 3, md: 0 }, p: 2, border: '1px dashed #E63976', borderRadius: 2, background: '#FFF8F8', minHeight: 220 }}>
                 <Typography variant="subtitle2">Live Preview:</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                  <Box sx={{ width: 48, height: 48, bgcolor: passColor, borderRadius: 2, mr: 2 }} />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    mt: 1,
+                    background: passColor,
+                    borderRadius: 2,
+                    p: 2,
+                    color: '#fff',
+                  }}
+                >
+                  <Box sx={{ width: 48, height: 48, borderRadius: 2, mr: 2, overflow: 'hidden', bgcolor: '#fff' }}>
+                    {passImage && (
+                      <img src={URL.createObjectURL(passImage)} alt="Pass Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    )}
+                  </Box>
                   <Box>
-                    <Typography>{passName || 'Pass Name'}</Typography>
-                    <Typography variant="body2" color="text.secondary">{passDescription || 'Description'}</Typography>
-                    <Typography variant="body2" color="text.secondary">{passBenefits || 'Benefits'}</Typography>
-                    <Typography variant="body2" color="text.secondary">Validity: {passValidity || '30'} days</Typography>
+                    <Typography sx={{ color: '#fff', fontWeight: 600 }}>{passName || 'Pass Name'}</Typography>
+                    <Typography variant="body2" sx={{ color: '#fff' }}>{passDescription || 'Description'}</Typography>
+                    <Typography variant="body2" sx={{ color: '#fff' }}>{passBenefits || 'Benefits'}</Typography>
+                    <Typography variant="body2" sx={{ color: '#fff' }}>Validity: {passValidity || '30'} days</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                       {[...Array(5)].map((_, i) => (
                         <Box
@@ -444,8 +486,8 @@ const BrandManager = () => {
                             width: 24,
                             height: 24,
                             border: '2px solid',
-                            borderColor: passColor,
-                            background: i < passPunches ? passColor : 'transparent',
+                            borderColor: '#fff',
+                            background: i < passPunches ? '#fff' : 'transparent',
                             borderRadius: 2,
                             mx: 0.5
                           }}
