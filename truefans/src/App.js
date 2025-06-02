@@ -35,7 +35,6 @@ function AppContent() {
   const [showSignUp, setShowSignUp] = React.useState(false);
   const [showSignIn, setShowSignIn] = React.useState(false);
   const navigate = useNavigate();
-  const { currentUser, userRole } = useAuth();
 
   const handleSignInSuccess = () => {
     setShowSignIn(false);

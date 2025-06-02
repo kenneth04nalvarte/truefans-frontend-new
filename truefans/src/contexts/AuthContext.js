@@ -6,7 +6,7 @@ import {
   onAuthStateChanged
 } from 'firebase/auth';
 import { auth, db } from '../config/firebase';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
