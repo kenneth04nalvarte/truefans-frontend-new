@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import Login from './components/Auth/Login';
-import BrandDashboard from '../frontend/src/components/Brand/BrandDashboard';
+import BrandDashboard from './components/Brand/BrandDashboard';
 import Navbar from './components/Navigation/Navbar';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useState, useEffect } from 'react';
