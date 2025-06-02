@@ -7,7 +7,7 @@ import SignIn from './components/Auth/SignIn';
 import Dashboard from './components/Dashboard/Dashboard';
 import BrandManager from './components/Brand/BrandManager';
 import PassView from './components/PassView';
-import { AuthProvider, useAuth } from '../frontend/src/contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const theme = createTheme({
   palette: {
