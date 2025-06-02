@@ -34,10 +34,22 @@ const BrandManager = () => {
   const [passLoading, setPassLoading] = useState(false);
   const [qrDialogOpen, setQRDialogOpen] = useState(false);
   const [qrPass, setQRPass] = useState(null);
-  // Placeholder brand name for now
-  const brandName = 'Brand';
+  const [brandName, setBrandName] = useState('');
+  const [brandLoading, setBrandLoading] = useState(true);
 
   useEffect(() => {
+    const fetchBrand = async () => {
+      if (!brandId) return;
+      setBrandLoading(true);
+      const brandDoc = await getDocs(query(collection(db, 'brands'), where('__name__', '==', brandId)));
+      if (!brandDoc.empty) {
+        setBrandName(brandDoc.docs[0].data().name);
+      } else {
+        setBrandName('Brand');
+      }
+      setBrandLoading(false);
+    };
+    fetchBrand();
     fetchLocations();
     fetchPasses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -202,7 +214,9 @@ const BrandManager = () => {
       <Paper sx={{ p: 3 }}>
         {/* Top Bar */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>{brandName}</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            {brandLoading ? <CircularProgress size={20} sx={{ verticalAlign: 'middle' }} /> : brandName}
+          </Typography>
           <Box display="flex" alignItems="center">
             <Button onClick={() => navigate(-1)} sx={{ mr: 2 }}>Back</Button>
             <Avatar sx={{ bgcolor: 'primary.main' }}><AccountCircleIcon /></Avatar>
