@@ -137,13 +137,6 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
         <Typography variant="h4" component="h1">
           Digital Passes
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={onClose}
-        >
-          Create New Pass
-        </Button>
       </Box>
 
       {error && (
@@ -233,7 +226,7 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle>Create New Digital Pass</DialogTitle>
         <DialogContent>
-          {dialogError && <Typography color="error">{dialogError}</Typography>}
+          {dialogError && <Typography color="error" sx={{ mb: 2 }}>{dialogError}</Typography>}
           <Box sx={{ pt: 2 }}>
             <TextField
               fullWidth
@@ -241,6 +234,7 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
               value={newPass.name}
               onChange={(e) => setNewPass(prev => ({ ...prev, name: e.target.value }))}
               margin="normal"
+              required
             />
             <TextField
               fullWidth
@@ -319,7 +313,11 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleCreatePass} variant="contained" disabled={dialogLoading}>
+          <Button 
+            onClick={handleCreatePass} 
+            variant="contained" 
+            disabled={dialogLoading || !newPass.name.trim()}
+          >
             {dialogLoading ? 'Saving...' : 'Create Pass'}
           </Button>
         </DialogActions>
