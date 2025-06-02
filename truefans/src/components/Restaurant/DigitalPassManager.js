@@ -223,10 +223,19 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
         ))}
       </Grid>
 
-      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <Dialog 
+        open={open} 
+        onClose={onClose} 
+        maxWidth="sm" 
+        fullWidth
+      >
         <DialogTitle>Create New Digital Pass</DialogTitle>
         <DialogContent>
-          {dialogError && <Typography color="error" sx={{ mb: 2 }}>{dialogError}</Typography>}
+          {dialogError && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {dialogError}
+            </Typography>
+          )}
           <Box sx={{ pt: 2 }}>
             <TextField
               fullWidth
@@ -235,6 +244,7 @@ const DigitalPassManager = ({ brandId, onClose, open }) => {
               onChange={(e) => setNewPass(prev => ({ ...prev, name: e.target.value }))}
               margin="normal"
               required
+              autoFocus
             />
             <TextField
               fullWidth
