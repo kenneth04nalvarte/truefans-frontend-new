@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Container, Grid, Paper, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import { Box, Button, Container, Grid, Paper, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db, auth } from '../../config/firebase';
 
@@ -11,6 +11,9 @@ const BrandDashboard = () => {
   const [editBrand, setEditBrand] = useState(null);
   const [brandName, setBrandName] = useState('');
   const [ownerName, setOwnerName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, brandId: null });
 
   useEffect(() => {
     fetchBrands();
@@ -19,11 +22,19 @@ const BrandDashboard = () => {
   }, []);
 
   const fetchBrands = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-    const q = query(collection(db, 'brands'), where('ownerId', '==', user.uid));
-    const querySnapshot = await getDocs(q);
-    setBrands(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    setLoading(true);
+    setError('');
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const q = query(collection(db, 'brands'), where('ownerId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      setBrands(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (err) {
+      setError('Failed to load brands.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOpenDialog = (brand = null) => {
@@ -39,17 +50,32 @@ const BrandDashboard = () => {
   const handleSaveBrand = async () => {
     const user = auth.currentUser;
     if (!user) return;
-    if (editBrand) {
-      await updateDoc(doc(db, 'brands', editBrand.id), { name: brandName });
-    } else {
-      await addDoc(collection(db, 'brands'), { name: brandName, ownerId: user.uid });
+    try {
+      if (editBrand) {
+        await updateDoc(doc(db, 'brands', editBrand.id), { name: brandName });
+      } else {
+        await addDoc(collection(db, 'brands'), { name: brandName, ownerId: user.uid });
+      }
+      handleCloseDialog();
+      fetchBrands();
+    } catch (err) {
+      setError('Failed to save brand.');
     }
-    handleCloseDialog();
-    fetchBrands();
   };
-  const handleRemoveBrand = async (id) => {
-    await deleteDoc(doc(db, 'brands', id));
-    fetchBrands();
+  const handleRemoveBrand = (id) => {
+    setDeleteConfirm({ open: true, brandId: id });
+  };
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'brands', deleteConfirm.brandId));
+      setDeleteConfirm({ open: false, brandId: null });
+      fetchBrands();
+    } catch (err) {
+      setError('Failed to delete brand.');
+    }
+  };
+  const handleCancelDelete = () => {
+    setDeleteConfirm({ open: false, brandId: null });
   };
 
   return (
@@ -61,23 +87,34 @@ const BrandDashboard = () => {
         <Typography variant="h6" gutterBottom>
           Your Brands:
         </Typography>
-        <Box>
-          {brands.map((brand) => (
-            <Grid container alignItems="center" spacing={2} key={brand.id} sx={{ mb: 1 }}>
-              <Grid item xs={6}>
-                <Typography>{brand.name}</Typography>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Typography color="error">{error}</Typography>
+        ) : (
+          <Box>
+            {brands.length === 0 && (
+              <Typography color="text.secondary" sx={{ mb: 2 }}>No brands found. Click below to add your first brand.</Typography>
+            )}
+            {brands.map((brand) => (
+              <Grid container alignItems="center" spacing={2} key={brand.id} sx={{ mb: 1 }}>
+                <Grid item xs={6}>
+                  <Typography>{brand.name}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Button variant="outlined" onClick={() => navigate(`/brands/${brand.id}`)}>
+                    Manage Brand
+                  </Button>
+                  <Button size="small" sx={{ ml: 1 }} onClick={() => handleOpenDialog(brand)}>Edit</Button>
+                  <Button size="small" color="error" sx={{ ml: 1 }} onClick={() => handleRemoveBrand(brand.id)}>Remove</Button>
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <Button variant="outlined" onClick={() => navigate(`/brands/${brand.id}`)}>
-                  Manage Brand
-                </Button>
-                <Button size="small" sx={{ ml: 1 }} onClick={() => handleOpenDialog(brand)}>Edit</Button>
-                <Button size="small" color="error" sx={{ ml: 1 }} onClick={() => handleRemoveBrand(brand.id)}>Remove</Button>
-              </Grid>
-            </Grid>
-          ))}
-          <Button variant="contained" sx={{ mt: 2 }} onClick={() => handleOpenDialog()}>Add New Brand</Button>
-        </Box>
+            ))}
+            <Button variant="contained" sx={{ mt: 2 }} onClick={() => handleOpenDialog()}>Add New Brand</Button>
+          </Box>
+        )}
       </Paper>
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>{editBrand ? 'Edit Brand' : 'Add New Brand'}</DialogTitle>
@@ -94,6 +131,16 @@ const BrandDashboard = () => {
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleSaveBrand} variant="contained">Save</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={deleteConfirm.open} onClose={handleCancelDelete}>
+        <DialogTitle>Delete Brand?</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this brand? This action cannot be undone.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">Delete</Button>
         </DialogActions>
       </Dialog>
     </Container>
