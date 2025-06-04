@@ -1,0 +1,3 @@
+[submodule "truefans/frontend"]
+    path = truefans/frontend
+    url = https://github.com/kenneth04nalvarte/truefans-frontend-new.git 
