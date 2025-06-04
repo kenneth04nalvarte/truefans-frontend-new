@@ -91,28 +91,30 @@ const Dashboard = () => {
   if (loading) return <Box sx={{ mt: 8, textAlign: 'center' }}><CircularProgress /></Box>;
 
   return (
-    <Box sx={{ mt: 6 }}>
-      <Typography variant="h4" sx={{ mb: 2, color: '#E63976', fontWeight: 700 }}>
-        Welcome, {user?.displayName || 'Owner'}!
-      </Typography>
-      <Typography variant="h6" sx={{ mb: 3, color: '#1A2341' }}>
-        Your Brands:
-      </Typography>
-      <Grid container spacing={2}>
-        {brands.map((brand) => (
-          <Grid item xs={12} md={6} key={brand.id}>
-            <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography sx={{ fontWeight: 600 }}>{brand.name}</Typography>
+    <Box sx={{ mt: 6, maxWidth: 600, mx: 'auto' }}>
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, textAlign: 'center' }}>
+          Welcome, {user?.displayName || 'Owner'}!
+        </Typography>
+        <Typography variant="subtitle1" sx={{ mb: 2, textAlign: 'center' }}>
+          Your Brands:
+        </Typography>
+        <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
+          {brands.map((brand) => (
+            <Box component="li" key={brand.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, borderBottom: '1px solid #eee', pb: 1 }}>
+              <Typography sx={{ fontWeight: 500 }}>{brand.name}</Typography>
               <Box>
-                <Button size="small" variant="contained" sx={{ mr: 1 }} onClick={() => handleManageBrand(brand)}>Manage Brand</Button>
-                <Button size="small" sx={{ mr: 1 }} onClick={() => handleEditBrand(brand)}>Edit</Button>
-                <Button size="small" color="error" onClick={() => handleRemoveBrand(brand)}>Remove</Button>
+                <Button size="small" variant="outlined" sx={{ ml: 1 }} onClick={() => handleManageBrand(brand)}>Manage Brand</Button>
+                <Button size="small" sx={{ ml: 1 }} onClick={() => handleEditBrand(brand)}>Edit</Button>
+                <Button size="small" color="error" sx={{ ml: 1 }} onClick={() => handleRemoveBrand(brand)}>Remove</Button>
               </Box>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-      <Button variant="contained" sx={{ mt: 4 }} onClick={handleAddBrand}>Add New Brand</Button>
+            </Box>
+          ))}
+        </Box>
+        <Box sx={{ textAlign: 'center', mt: 3 }}>
+          <Button variant="contained" onClick={handleAddBrand}>Add New Brand</Button>
+        </Box>
+      </Paper>
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="xs" fullWidth>
         <DialogTitle>{editBrand ? 'Edit Brand' : 'Add New Brand'}</DialogTitle>
         <DialogContent>

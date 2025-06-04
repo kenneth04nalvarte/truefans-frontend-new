@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.id.gettruefans",
+  "teamIdentifier": "H26G36V292",
+  "organizationName": "GetTrueFans",
+  "description": "Sample Store Card Pass",
+  "serialNumber": "1234567890",
+  "backgroundColor": "rgb(255,255,255)",
+  "foregroundColor": "rgb(0,0,0)",
+  "labelColor": "rgb(0,0,0)",
+  "storeCard": {
+    "primaryFields": [
+      {
+        "key": "balance",
+        "label": "Balance",
+        "value": "$100"
+      }
+    ]
+  }
+}

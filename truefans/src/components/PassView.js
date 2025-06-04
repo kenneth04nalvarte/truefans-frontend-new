@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Box, Typography, Paper, TextField, Button, CircularProgress, MenuItem } from '@mui/material';
 import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import axios from 'axios';
 
 const howOptions = [
   'Social Media',
@@ -19,6 +20,8 @@ const PassView = () => {
   const [form, setForm] = useState({ name: '', phone: '', birthday: '', how: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
+  const [applePassUrl, setApplePassUrl] = useState('');
+  const [applePassLoading, setApplePassLoading] = useState(false);
 
   useEffect(() => {
     fetchPass();
@@ -51,6 +54,31 @@ const PassView = () => {
       setError(err.message);
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleAppleWallet = async () => {
+    setApplePassLoading(true);
+    try {
+      const response = await axios.post('/api/generate-pass', {
+        serialNumber: passId,
+        restaurantName: pass.name || 'Restaurant',
+        description: pass.description || 'Loyalty Pass'
+      }, { responseType: 'blob' });
+      const blob = new Blob([response.data], { type: 'application/vnd.apple.pkpass' });
+      const url = window.URL.createObjectURL(blob);
+      setApplePassUrl(url);
+      // Trigger download automatically
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'diner-pass.pkpass';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (err) {
+      alert('Failed to generate Apple Wallet pass.');
+    } finally {
+      setApplePassLoading(false);
     }
   };
 
@@ -123,8 +151,14 @@ const PassView = () => {
             <Button variant="contained" color="success" sx={{ mb: 2 }} fullWidth disabled>
               Add to Google Wallet
             </Button>
-            <Button variant="contained" color="secondary" fullWidth disabled>
-              Add to Apple Wallet
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              onClick={handleAppleWallet}
+              disabled={applePassLoading}
+            >
+              {applePassLoading ? 'Generating...' : 'Add to Apple Wallet'}
             </Button>
           </>
         )}
