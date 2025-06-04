@@ -20,7 +20,6 @@ const PassView = () => {
   const [form, setForm] = useState({ name: '', phone: '', birthday: '', how: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
-  const [applePassUrl, setApplePassUrl] = useState('');
   const [applePassLoading, setApplePassLoading] = useState(false);
 
   useEffect(() => {
@@ -67,7 +66,6 @@ const PassView = () => {
       }, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: 'application/vnd.apple.pkpass' });
       const url = window.URL.createObjectURL(blob);
-      setApplePassUrl(url);
       // Trigger download automatically
       const a = document.createElement('a');
       a.href = url;
