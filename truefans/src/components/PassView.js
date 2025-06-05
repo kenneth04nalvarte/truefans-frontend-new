@@ -12,6 +12,8 @@ const howOptions = [
   'Other',
 ];
 
+const VERCEL_BACKEND_URL = 'https://truefans-backend.vercel.app';
+
 const PassView = () => {
   const { passId } = useParams();
   const [pass, setPass] = useState(null);
@@ -59,7 +61,7 @@ const PassView = () => {
   const handleAppleWallet = async () => {
     setApplePassLoading(true);
     try {
-      const response = await axios.post('/api/generate-pass', {
+      const response = await axios.post(`${VERCEL_BACKEND_URL}/api/generate-pass`, {
         serialNumber: passId,
         restaurantName: pass.name || 'Restaurant',
         description: pass.description || 'Loyalty Pass'
