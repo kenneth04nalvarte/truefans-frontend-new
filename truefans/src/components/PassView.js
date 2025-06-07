@@ -63,6 +63,7 @@ const PassView = () => {
     setApplePassLoading(true);
     try {
       // Call your backend to generate the pass and get the download URL
+      const token = localStorage.getItem('backendToken');
       const response = await axios.post(
         `${backendUrl}/digitalPasses/generate`,
         {
@@ -70,6 +71,11 @@ const PassView = () => {
           phone: form.phone || '',
           birthday: form.birthday || '',
           restaurantId: pass.restaurantId
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
       );
       if (response.data && response.data.downloadUrl) {
