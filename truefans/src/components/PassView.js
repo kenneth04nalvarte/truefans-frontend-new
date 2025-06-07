@@ -62,6 +62,13 @@ const PassView = () => {
   const handleAppleWallet = async () => {
     setApplePassLoading(true);
     try {
+      // Debug: log the pass object
+      console.log('Pass object:', pass);
+      if (!pass || !pass.brandId || !pass.locationId) {
+        alert('This pass is missing brand or location information. Please contact support.');
+        setApplePassLoading(false);
+        return;
+      }
       // Call your backend to generate the pass and get the download URL
       const token = localStorage.getItem('backendToken');
       const response = await axios.post(
