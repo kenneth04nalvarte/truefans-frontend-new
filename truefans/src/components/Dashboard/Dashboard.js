@@ -60,6 +60,12 @@ const Dashboard = () => {
     setDialogLoading(true);
     setError('');
     try {
+      console.log('Current user:', user);
+      if (!user) {
+        setError('You must be logged in to create a brand.');
+        setDialogLoading(false);
+        return;
+      }
       if (editBrand) {
         await updateDoc(doc(db, 'brands', editBrand.id), { name: brandName });
       } else {

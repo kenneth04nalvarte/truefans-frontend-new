@@ -6,6 +6,7 @@ import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, s
 import { db } from '../../config/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { QRCodeSVG } from 'qrcode.react';
+import { auth } from '../../config/firebase';
 
 const BrandManager = () => {
   const { brandId } = useParams();
@@ -58,7 +59,7 @@ const BrandManager = () => {
   const fetchLocations = async () => {
     if (!brandId) return;
     setLoading(true);
-    const q = query(collection(db, 'locations'), where('brandId', '==', brandId));
+    const q = query(collection(db, 'brands', brandId, 'locations'));
     const querySnapshot = await getDocs(q);
     setLocations(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     setLoading(false);
@@ -66,7 +67,7 @@ const BrandManager = () => {
 
   const fetchPasses = async () => {
     if (!brandId) return;
-    const q = query(collection(db, 'digitalPasses'), where('brandId', '==', brandId));
+    const q = query(collection(db, 'brands', brandId, 'passes'));
     const querySnapshot = await getDocs(q);
     setPasses(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
   };
@@ -87,17 +88,23 @@ const BrandManager = () => {
     setOpenDialog(true);
   };
   const handleRemoveLocation = async (id) => {
-    await deleteDoc(doc(db, 'locations', id));
+    await deleteDoc(doc(db, 'brands', brandId, 'locations', id));
     fetchLocations();
   };
   const handleSaveLocation = async () => {
     setDialogLoading(true);
     setError('');
     try {
+      const user = auth.currentUser;
+      if (!user) {
+        setError('You must be logged in to create a location.');
+        setDialogLoading(false);
+        return;
+      }
       if (editLocation) {
-        await updateDoc(doc(db, 'locations', editLocation.id), { name: locationName, address: locationAddress, phone: locationPhone });
+        await updateDoc(doc(db, 'brands', brandId, 'locations', editLocation.id), { name: locationName, address: locationAddress, phone: locationPhone });
       } else {
-        await addDoc(collection(db, 'locations'), { name: locationName, address: locationAddress, phone: locationPhone, brandId, createdAt: serverTimestamp() });
+        await addDoc(collection(db, 'brands', brandId, 'locations'), { name: locationName, address: locationAddress, phone: locationPhone, ownerId: user.uid, createdAt: serverTimestamp() });
       }
       setOpenDialog(false);
       setEditLocation(null);
@@ -145,7 +152,7 @@ const BrandManager = () => {
     setOpenPassDialog(true);
   };
   const handleDeactivatePass = async (pass) => {
-    await updateDoc(doc(db, 'digitalPasses', pass.id), { active: false });
+    await updateDoc(doc(db, 'brands', brandId, 'passes', pass.id), { active: false });
     fetchPasses();
   };
   const handleViewPass = (pass) => {
@@ -170,14 +177,14 @@ const BrandManager = () => {
         color: passColor,
         punches: passPunches,
         image: imageUrl,
-        brandId,
         createdAt: new Date().toISOString(),
         active: true,
+        brandId,
       };
       if (editPass) {
-        await updateDoc(doc(db, 'digitalPasses', editPass.id), passData);
+        await updateDoc(doc(db, 'brands', brandId, 'passes', editPass.id), passData);
       } else {
-        await addDoc(collection(db, 'digitalPasses'), passData);
+        await addDoc(collection(db, 'brands', brandId, 'passes'), passData);
       }
       setOpenPassDialog(false);
       fetchPasses();
