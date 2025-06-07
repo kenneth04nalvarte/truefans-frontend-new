@@ -70,7 +70,8 @@ const PassView = () => {
           name: form.name || 'Guest',
           phone: form.phone || '',
           birthday: form.birthday || '',
-          restaurantId: pass.restaurantId
+          brandId: pass.brandId,
+          locationId: pass.locationId
         },
         {
           headers: {
