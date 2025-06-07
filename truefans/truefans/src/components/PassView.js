@@ -22,6 +22,9 @@ const PassView = () => {
   const [error, setError] = useState('');
   const [applePassLoading, setApplePassLoading] = useState(false);
 
+  // Use the environment variable for the backend URL
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     fetchPass();
     // eslint-disable-next-line
@@ -58,8 +61,10 @@ const PassView = () => {
 
   const handleAppleWallet = async () => {
     setApplePassLoading(true);
-try {
-  const response = await axios.post(`${VERCEL_BACKEND_URL}/api/generate-pass`, 
+    try {
+      // Call your backend to generate the pass and get the download URL
+      const response = await axios.post(
+        `${backendUrl}/digitalPasses/generate`,
         {
           name: form.name || 'Guest',
           phone: form.phone || '',
