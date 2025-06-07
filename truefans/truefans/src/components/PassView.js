@@ -58,10 +58,8 @@ const PassView = () => {
 
   const handleAppleWallet = async () => {
     setApplePassLoading(true);
-    try {
-      // Call your backend to generate the pass and get the download URL
-      const response = await axios.post(
-        'https://truefans-backend.vercel.app/api/digitalPasses/generate',
+try {
+  const response = await axios.post(`${VERCEL_BACKEND_URL}/api/generate-pass`, 
         {
           name: form.name || 'Guest',
           phone: form.phone || '',
