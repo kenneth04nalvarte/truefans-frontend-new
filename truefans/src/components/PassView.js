@@ -12,6 +12,8 @@ const howOptions = [
   'Other',
 ];
 
+const VERCEL_BACKEND_URL = 'https://truefans-backend.vercel.app';
+
 const PassView = () => {
   const { passId } = useParams();
   const [pass, setPass] = useState(null);
@@ -20,7 +22,6 @@ const PassView = () => {
   const [form, setForm] = useState({ name: '', phone: '', birthday: '', how: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
-  const [applePassUrl, setApplePassUrl] = useState('');
   const [applePassLoading, setApplePassLoading] = useState(false);
 
   useEffect(() => {
@@ -60,14 +61,17 @@ const PassView = () => {
   const handleAppleWallet = async () => {
     setApplePassLoading(true);
     try {
+<<<<<<< HEAD
       const response = await axios.post('https://truefans-backend.vercel.app/api/generate-pass', {
+=======
+      const response = await axios.post(`${VERCEL_BACKEND_URL}/api/generate-pass`, {
+>>>>>>> 3fa152aaed2d7cbd2832e9d1789410b8cc8a1204
         serialNumber: passId,
         restaurantName: pass.name || 'Restaurant',
         description: pass.description || 'Loyalty Pass'
       }, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: 'application/vnd.apple.pkpass' });
       const url = window.URL.createObjectURL(blob);
-      setApplePassUrl(url);
       // Trigger download automatically
       const a = document.createElement('a');
       a.href = url;
