@@ -156,7 +156,7 @@ const BrandManager = () => {
     fetchPasses();
   };
   const handleViewPass = (pass) => {
-    window.open(`/pass/${pass.id}`, '_blank');
+    window.open(`/brands/${brandId}/pass/${pass.id}`, '_blank');
   };
   const handleSavePass = async () => {
     console.log('handleSavePass called');
@@ -364,10 +364,10 @@ const BrandManager = () => {
             <>
               <Typography variant="body2" sx={{ mb: 2 }}>Scan or share this QR code with diners:</Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                <QRCodeSVG value={`${window.location.origin}/pass/${qrPass.id}`} size={180} />
+                <QRCodeSVG value={`${window.location.origin}/brands/${brandId}/pass/${qrPass.id}`} size={180} />
               </Box>
               <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
-                {`${window.location.origin}/pass/${qrPass.id}`}
+                {`${window.location.origin}/brands/${brandId}/pass/${qrPass.id}`}
               </Typography>
             </>
           )}

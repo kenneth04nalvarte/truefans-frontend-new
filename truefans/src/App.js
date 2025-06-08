@@ -74,7 +74,7 @@ function AppContent() {
           }
         />
         <Route
-          path="/pass/:passId"
+          path="/brands/:brandId/pass/:passId"
           element={<PassView />}
         />
         <Route path="*" element={<Navigate to="/" />} />

@@ -13,7 +13,7 @@ const howOptions = [
 ];
 
 const PassView = () => {
-  const { passId } = useParams();
+  const { brandId, passId } = useParams();
   const [pass, setPass] = useState(null);
   const [loading, setLoading] = useState(true);
   const [registered, setRegistered] = useState(false);
@@ -28,13 +28,19 @@ const PassView = () => {
   useEffect(() => {
     fetchPass();
     // eslint-disable-next-line
-  }, [passId]);
+  }, [brandId, passId]);
 
   const fetchPass = async () => {
     setLoading(true);
-    const docRef = doc(db, 'digitalPasses', passId);
+    if (!brandId || !passId) {
+      setPass(null);
+      setLoading(false);
+      return;
+    }
+    const docRef = doc(db, 'brands', brandId, 'passes', passId);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) setPass(docSnap.data());
+    else setPass(null);
     setLoading(false);
   };
 
