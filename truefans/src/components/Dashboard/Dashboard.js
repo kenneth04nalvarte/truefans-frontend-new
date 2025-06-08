@@ -23,18 +23,18 @@ const Dashboard = () => {
   const [brandName, setBrandName] = useState('');
   const [dialogLoading, setDialogLoading] = useState(false);
   const [error, setError] = useState('');
-  const user = auth.currentUser;
+  const owner = auth.currentUser;
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchBrands();
     // eslint-disable-next-line
-  }, [user]);
+  }, [owner]);
 
   const fetchBrands = async () => {
-    if (!user) return;
+    if (!owner) return;
     setLoading(true);
-    const q = query(collection(db, 'brands'), where('ownerId', '==', user.uid));
+    const q = query(collection(db, 'brands'), where('ownerId', '==', owner.uid));
     const querySnapshot = await getDocs(q);
     setBrands(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     setLoading(false);
@@ -60,20 +60,34 @@ const Dashboard = () => {
     setDialogLoading(true);
     setError('');
     try {
-      console.log('Current user:', user);
-      if (!user) {
+      console.log('Current user:', owner);
+      if (!owner) {
         setError('You must be logged in to create a brand.');
         setDialogLoading(false);
         return;
       }
+      const brandData = {
+        name: brandName,
+        ownerId: owner.uid,
+        createdAt: serverTimestamp(),
+      };
+      console.log('Creating brand:', brandData);
       if (editBrand) {
         await updateDoc(doc(db, 'brands', editBrand.id), { name: brandName });
       } else {
-        await addDoc(collection(db, 'brands'), {
-          name: brandName,
-          ownerId: user.uid,
-          createdAt: serverTimestamp(),
-        });
+        // Try writing to brands
+        try {
+          await addDoc(collection(db, 'brands'), brandData);
+        } catch (err) {
+          console.error('Error writing to brands:', err);
+        }
+        // Try writing to testCollection
+        try {
+          await addDoc(collection(db, 'testCollection'), { test: true, ownerId: owner.uid, createdAt: serverTimestamp() });
+          console.log('Successfully wrote to testCollection');
+        } catch (err) {
+          console.error('Error writing to testCollection:', err);
+        }
       }
       setOpenDialog(false);
       fetchBrands();
@@ -99,7 +113,7 @@ const Dashboard = () => {
     <Box sx={{ mt: 6, maxWidth: 600, mx: 'auto' }}>
       <Paper sx={{ p: 3 }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, textAlign: 'center' }}>
-          Welcome, {user?.displayName || 'Owner'}!
+          Welcome, {owner?.displayName || 'Owner'}!
         </Typography>
         <Typography variant="subtitle1" sx={{ mb: 2, textAlign: 'center' }}>
           Your Brands:
