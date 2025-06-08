@@ -95,8 +95,8 @@ const BrandManager = () => {
     setDialogLoading(true);
     setError('');
     try {
-      const user = auth.currentUser;
-      if (!user) {
+      const owner = auth.currentUser;
+      if (!owner) {
         setError('You must be logged in to create a location.');
         setDialogLoading(false);
         return;
@@ -104,7 +104,7 @@ const BrandManager = () => {
       if (editLocation) {
         await updateDoc(doc(db, 'brands', brandId, 'locations', editLocation.id), { name: locationName, address: locationAddress, phone: locationPhone });
       } else {
-        await addDoc(collection(db, 'brands', brandId, 'locations'), { name: locationName, address: locationAddress, phone: locationPhone, ownerId: user.uid, createdAt: serverTimestamp() });
+        await addDoc(collection(db, 'brands', brandId, 'locations'), { name: locationName, address: locationAddress, phone: locationPhone, ownerId: owner.uid, createdAt: serverTimestamp() });
       }
       setOpenDialog(false);
       setEditLocation(null);
@@ -159,6 +159,8 @@ const BrandManager = () => {
     window.open(`/pass/${pass.id}`, '_blank');
   };
   const handleSavePass = async () => {
+    console.log('handleSavePass called');
+    console.log('auth.currentUser:', auth.currentUser);
     setPassLoading(true);
     setPassError('');
     try {
@@ -169,6 +171,7 @@ const BrandManager = () => {
         await uploadBytes(imageRef, passImage);
         imageUrl = await getDownloadURL(imageRef);
       }
+      const owner = auth.currentUser;
       const passData = {
         name: passName,
         description: passDescription,
@@ -180,12 +183,10 @@ const BrandManager = () => {
         createdAt: new Date().toISOString(),
         active: true,
         brandId,
+        ownerId: owner.uid,
       };
-      if (editPass) {
-        await updateDoc(doc(db, 'brands', brandId, 'passes', editPass.id), passData);
-      } else {
-        await addDoc(collection(db, 'brands', brandId, 'passes'), passData);
-      }
+      console.log('Creating pass with data:', passData);
+      await addDoc(collection(db, 'brands', brandId, 'passes'), passData);
       setOpenPassDialog(false);
       fetchPasses();
     } catch (err) {
