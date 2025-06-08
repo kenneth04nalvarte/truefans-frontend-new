@@ -102,10 +102,18 @@ const BrandManager = () => {
         setDialogLoading(false);
         return;
       }
+      const locationData = {
+        name: locationName,
+        address: locationAddress,
+        phone: locationPhone,
+        ownerId: owner.uid,
+        createdAt: serverTimestamp()
+      };
+      console.log('Creating location:', locationData);
       if (editLocation) {
-        await updateDoc(doc(db, 'brands', brandId, 'locations', editLocation.id), { name: locationName, address: locationAddress, phone: locationPhone });
+        await updateDoc(doc(db, 'brands', brandId, 'locations', editLocation.id), locationData);
       } else {
-        await addDoc(collection(db, 'brands', brandId, 'locations'), { name: locationName, address: locationAddress, phone: locationPhone, ownerId: owner.uid, createdAt: serverTimestamp() });
+        await addDoc(collection(db, 'brands', brandId, 'locations'), locationData);
       }
       setOpenDialog(false);
       setEditLocation(null);
