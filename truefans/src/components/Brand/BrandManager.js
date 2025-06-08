@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Button, Avatar, Tabs, Tab, Box, Paper, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
+import { Typography, Button, Avatar, Tabs, Tab, Box, Paper, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, MenuItem } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../config/firebase';
@@ -37,6 +37,7 @@ const BrandManager = () => {
   const [qrPass, setQRPass] = useState(null);
   const [brandName, setBrandName] = useState('');
   const [brandLoading, setBrandLoading] = useState(true);
+  const [passLocationId, setPassLocationId] = useState('');
 
   useEffect(() => {
     const fetchBrand = async () => {
@@ -137,6 +138,7 @@ const BrandManager = () => {
     setPassPunches(0);
     setPassImage(null);
     setPassError('');
+    setPassLocationId('');
     setOpenPassDialog(true);
   };
   const handleEditPass = (pass) => {
@@ -149,6 +151,7 @@ const BrandManager = () => {
     setPassPunches(pass.punches || 0);
     setPassImage(null);
     setPassError('');
+    setPassLocationId(pass.locationId || '');
     setOpenPassDialog(true);
   };
   const handleDeactivatePass = async (pass) => {
@@ -159,8 +162,10 @@ const BrandManager = () => {
     window.open(`/brands/${brandId}/pass/${pass.id}`, '_blank');
   };
   const handleSavePass = async () => {
-    console.log('handleSavePass called');
-    console.log('auth.currentUser:', auth.currentUser);
+    if (!passLocationId) {
+      setPassError('Please select a location for this pass.');
+      return;
+    }
     setPassLoading(true);
     setPassError('');
     try {
@@ -183,6 +188,7 @@ const BrandManager = () => {
         createdAt: new Date().toISOString(),
         active: true,
         brandId,
+        locationId: passLocationId,
         ownerId: owner.uid,
       };
       console.log('Creating pass with data:', passData);
@@ -206,6 +212,7 @@ const BrandManager = () => {
     setPassPunches(0);
     setPassImage(null);
     setPassError('');
+    setPassLocationId('');
   };
 
   const handleShowQR = (pass) => {
@@ -443,6 +450,20 @@ const BrandManager = () => {
                   />
                 ))}
               </Box>
+              <TextField
+                select
+                margin="dense"
+                label="Location"
+                fullWidth
+                value={passLocationId}
+                onChange={e => setPassLocationId(e.target.value)}
+                required
+                sx={{ mt: 2 }}
+              >
+                {locations.map(loc => (
+                  <MenuItem key={loc.id} value={loc.id}>{loc.name}</MenuItem>
+                ))}
+              </TextField>
               <Button
                 variant="contained"
                 component="label"
