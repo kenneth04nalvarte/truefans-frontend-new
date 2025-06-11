@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.id.gettruefans",
+  "teamIdentifier": "H26G36V292",
+  "organizationName": "GetTrueFans",
+  "description": "Restaurant Loyalty Pass",
+  "generic": {
+    "primaryFields": [
+      {
+        "key": "balance",
+        "label": "BALANCE",
+        "value": "0"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "visits",
+        "label": "VISITS",
+        "value": "0"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "memberSince",
+        "label": "MEMBER SINCE",
+        "value": "2024"
+      }
+    ]
+  },
+  "barcode": {
+    "format": "PKBarcodeFormatQR",
+    "message": "https://gettruefans.netlify.app",
+    "messageEncoding": "iso-8859-1"
+  }
+} 
