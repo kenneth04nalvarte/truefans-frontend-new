@@ -20,8 +20,6 @@ const SignUp = ({ open, onClose, onSuccess }) => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
       setOwnerId(userCredential.user.uid);
-      if (!ownerId) throw new Error('Owner ID not found');
-      const restaurantRef = doc(db, 'restaurants', ownerId);
       // Store owner in Firestore
       await setDoc(doc(db, 'owners', userCredential.user.uid), {
         name: name,
