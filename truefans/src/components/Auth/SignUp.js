@@ -11,7 +11,6 @@ const SignUp = ({ open, onClose, onSuccess }) => {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [ownerId, setOwnerId] = useState(null);
 
   const handleSignUp = async () => {
     setLoading(true);
@@ -19,7 +18,6 @@ const SignUp = ({ open, onClose, onSuccess }) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      setOwnerId(userCredential.user.uid);
       // Store owner in Firestore
       await setDoc(doc(db, 'owners', userCredential.user.uid), {
         name: name,
