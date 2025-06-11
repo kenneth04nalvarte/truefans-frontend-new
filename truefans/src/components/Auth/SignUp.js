@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, CircularProgress } from '@mui/material';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../../config/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../../config/firebase';
 
 const SignUp = ({ open, onClose, onSuccess }) => {
   const [email, setEmail] = useState('');
@@ -9,6 +11,7 @@ const SignUp = ({ open, onClose, onSuccess }) => {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [ownerId, setOwnerId] = useState(null);
 
   const handleSignUp = async () => {
     setLoading(true);
@@ -16,6 +19,15 @@ const SignUp = ({ open, onClose, onSuccess }) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
+      setOwnerId(userCredential.user.uid);
+      if (!ownerId) throw new Error('Owner ID not found');
+      const restaurantRef = doc(db, 'restaurants', ownerId);
+      // Store owner in Firestore
+      await setDoc(doc(db, 'owners', userCredential.user.uid), {
+        name: name,
+        email: userCredential.user.email,
+        createdAt: new Date().toISOString(),
+      });
       onSuccess && onSuccess();
     } catch (err) {
       setError(err.message);
