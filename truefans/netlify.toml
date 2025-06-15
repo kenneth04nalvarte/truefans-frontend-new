@@ -1,5 +1,5 @@
 [build]
-base = "truefans"
+base = "truefans/truefans"
 command = "npm run build"
 publish = "build"
 
