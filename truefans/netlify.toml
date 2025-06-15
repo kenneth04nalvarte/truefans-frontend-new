@@ -2,11 +2,11 @@
 base = "truefans"
 command = "npm run build"
 publish = "build"
-environment = { 
-  NODE_VERSION = "18.17.0",
-  NPM_FLAGS = "--legacy-peer-deps",
-  GENERATE_SOURCEMAP = "false"
-}
+
+[build.environment]
+NODE_VERSION = "18.17.0"
+NPM_FLAGS = "--legacy-peer-deps"
+GENERATE_SOURCEMAP = "false"
 
 [[redirects]]
 from = "/*"
