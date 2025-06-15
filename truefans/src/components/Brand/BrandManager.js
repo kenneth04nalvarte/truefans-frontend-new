@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Button, Avatar, Tabs, Tab, Box, Paper, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, MenuItem } from '@mui/material';
+import { Typography, Button, Avatar, Tabs, Tab, Box, Paper, Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { QRCodeSVG } from 'qrcode.react';
-import { auth } from '../../config/firebase';
 
 const BrandManager = () => {
   const { brandId } = useParams();
@@ -37,7 +36,6 @@ const BrandManager = () => {
   const [qrPass, setQRPass] = useState(null);
   const [brandName, setBrandName] = useState('');
   const [brandLoading, setBrandLoading] = useState(true);
-  const [passLocationId, setPassLocationId] = useState('');
 
   useEffect(() => {
     const fetchBrand = async () => {
@@ -60,7 +58,7 @@ const BrandManager = () => {
   const fetchLocations = async () => {
     if (!brandId) return;
     setLoading(true);
-    const q = query(collection(db, 'brands', brandId, 'locations'));
+    const q = query(collection(db, 'locations'), where('brandId', '==', brandId));
     const querySnapshot = await getDocs(q);
     setLocations(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     setLoading(false);
@@ -68,7 +66,7 @@ const BrandManager = () => {
 
   const fetchPasses = async () => {
     if (!brandId) return;
-    const q = query(collection(db, 'brands', brandId, 'passes'));
+    const q = query(collection(db, 'digitalPasses'), where('brandId', '==', brandId));
     const querySnapshot = await getDocs(q);
     setPasses(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
   };
@@ -89,31 +87,17 @@ const BrandManager = () => {
     setOpenDialog(true);
   };
   const handleRemoveLocation = async (id) => {
-    await deleteDoc(doc(db, 'brands', brandId, 'locations', id));
+    await deleteDoc(doc(db, 'locations', id));
     fetchLocations();
   };
   const handleSaveLocation = async () => {
     setDialogLoading(true);
     setError('');
     try {
-      const owner = auth.currentUser;
-      if (!owner) {
-        setError('You must be logged in to create a location.');
-        setDialogLoading(false);
-        return;
-      }
-      const locationData = {
-        name: locationName,
-        address: locationAddress,
-        phone: locationPhone,
-        ownerId: owner.uid,
-        createdAt: serverTimestamp()
-      };
-      console.log('Creating location:', locationData);
       if (editLocation) {
-        await updateDoc(doc(db, 'brands', brandId, 'locations', editLocation.id), locationData);
+        await updateDoc(doc(db, 'locations', editLocation.id), { name: locationName, address: locationAddress, phone: locationPhone });
       } else {
-        await addDoc(collection(db, 'brands', brandId, 'locations'), locationData);
+        await addDoc(collection(db, 'locations'), { name: locationName, address: locationAddress, phone: locationPhone, brandId, createdAt: serverTimestamp() });
       }
       setOpenDialog(false);
       setEditLocation(null);
@@ -146,7 +130,6 @@ const BrandManager = () => {
     setPassPunches(0);
     setPassImage(null);
     setPassError('');
-    setPassLocationId('');
     setOpenPassDialog(true);
   };
   const handleEditPass = (pass) => {
@@ -159,21 +142,16 @@ const BrandManager = () => {
     setPassPunches(pass.punches || 0);
     setPassImage(null);
     setPassError('');
-    setPassLocationId(pass.locationId || '');
     setOpenPassDialog(true);
   };
   const handleDeactivatePass = async (pass) => {
-    await updateDoc(doc(db, 'brands', brandId, 'passes', pass.id), { active: false });
+    await updateDoc(doc(db, 'digitalPasses', pass.id), { active: false });
     fetchPasses();
   };
   const handleViewPass = (pass) => {
-    window.open(`/brands/${brandId}/pass/${pass.id}`, '_blank');
+    window.open(`/pass/${pass.id}`, '_blank');
   };
   const handleSavePass = async () => {
-    if (!passLocationId) {
-      setPassError('Please select a location for this pass.');
-      return;
-    }
     setPassLoading(true);
     setPassError('');
     try {
@@ -184,7 +162,6 @@ const BrandManager = () => {
         await uploadBytes(imageRef, passImage);
         imageUrl = await getDownloadURL(imageRef);
       }
-      const owner = auth.currentUser;
       const passData = {
         name: passName,
         description: passDescription,
@@ -193,14 +170,15 @@ const BrandManager = () => {
         color: passColor,
         punches: passPunches,
         image: imageUrl,
+        brandId,
         createdAt: new Date().toISOString(),
         active: true,
-        brandId,
-        locationId: passLocationId,
-        ownerId: owner.uid,
       };
-      console.log('Creating pass with data:', passData);
-      await addDoc(collection(db, 'brands', brandId, 'passes'), passData);
+      if (editPass) {
+        await updateDoc(doc(db, 'digitalPasses', editPass.id), passData);
+      } else {
+        await addDoc(collection(db, 'digitalPasses'), passData);
+      }
       setOpenPassDialog(false);
       fetchPasses();
     } catch (err) {
@@ -220,7 +198,6 @@ const BrandManager = () => {
     setPassPunches(0);
     setPassImage(null);
     setPassError('');
-    setPassLocationId('');
   };
 
   const handleShowQR = (pass) => {
@@ -379,10 +356,10 @@ const BrandManager = () => {
             <>
               <Typography variant="body2" sx={{ mb: 2 }}>Scan or share this QR code with diners:</Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                <QRCodeSVG value={`${window.location.origin}/brands/${brandId}/pass/${qrPass.id}`} size={180} />
+                <QRCodeSVG value={`${window.location.origin}/pass/${qrPass.id}`} size={180} />
               </Box>
               <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
-                {`${window.location.origin}/brands/${brandId}/pass/${qrPass.id}`}
+                {`${window.location.origin}/pass/${qrPass.id}`}
               </Typography>
             </>
           )}
@@ -458,20 +435,6 @@ const BrandManager = () => {
                   />
                 ))}
               </Box>
-              <TextField
-                select
-                margin="dense"
-                label="Location"
-                fullWidth
-                value={passLocationId}
-                onChange={e => setPassLocationId(e.target.value)}
-                required
-                sx={{ mt: 2 }}
-              >
-                {locations.map(loc => (
-                  <MenuItem key={loc.id} value={loc.id}>{loc.name}</MenuItem>
-                ))}
-              </TextField>
               <Button
                 variant="contained"
                 component="label"

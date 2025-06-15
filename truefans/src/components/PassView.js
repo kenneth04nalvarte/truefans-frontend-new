@@ -20,10 +20,8 @@ const PassView = () => {
   const [form, setForm] = useState({ name: '', phone: '', birthday: '', how: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState('');
+  const [applePassUrl, setApplePassUrl] = useState('');
   const [applePassLoading, setApplePassLoading] = useState(false);
-
-  // Use the environment variable for the backend URL
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     fetchPass();
@@ -62,21 +60,21 @@ const PassView = () => {
   const handleAppleWallet = async () => {
     setApplePassLoading(true);
     try {
-      // Call your backend to generate the pass and get the download URL
-      const response = await axios.post(
-        `${backendUrl}/api/digitalPasses/generate`,
-        {
-          name: form.name || 'Guest',
-          phone: form.phone || '',
-          birthday: form.birthday || '',
-          restaurantId: pass.restaurantId
-        }
-      );
-      if (response.data && response.data.downloadUrl) {
-        window.open(response.data.downloadUrl, '_blank');
-      } else {
-        alert('Failed to generate Apple Wallet pass.');
-      }
+      const response = await axios.post('/api/generate-pass', {
+        serialNumber: passId,
+        restaurantName: pass.name || 'Restaurant',
+        description: pass.description || 'Loyalty Pass'
+      }, { responseType: 'blob' });
+      const blob = new Blob([response.data], { type: 'application/vnd.apple.pkpass' });
+      const url = window.URL.createObjectURL(blob);
+      setApplePassUrl(url);
+      // Trigger download automatically
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'diner-pass.pkpass';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     } catch (err) {
       alert('Failed to generate Apple Wallet pass.');
     } finally {
@@ -169,4 +167,4 @@ const PassView = () => {
   );
 };
 
-export default PassView;
+export default PassView; 
